@@ -14,32 +14,36 @@
             --accent-color: #e50914;
             --bg-dark: #0d1117;
             --card-bg: rgba(255, 255, 255, 0.08);
+            --modal-bg: rgba(20, 24, 28, 0.98);
         }
 
         #dynamic-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--bg-dark);
             background-size: cover; background-position: center;
-            filter: blur(20px) brightness(0.2); z-index: -1;
-            transition: background-image 1s ease;
+            filter: blur(25px) brightness(0.2); z-index: -1;
+            transition: background-image 1.2s ease;
         }
 
         body {
             font-family: 'Poppins', sans-serif; color: #fff; margin: 0; padding: 20px;
             min-height: 100vh; display: flex; flex-direction: column; align-items: center;
             background-color: var(--bg-dark);
+            overflow-x: hidden;
         }
+
+        body.modal-open { overflow: hidden; }
 
         /* Navigasyon & Header */
         .header-bar {
-            width: 100%; max-width: 1000px; display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 30px; padding: 10px 0;
+            width: 100%; max-width: 1100px; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 30px; padding: 15px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
-        .logo { font-size: 28px; font-weight: 600; color: var(--primary-color); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 26px; font-weight: 600; color: var(--primary-color); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; }
         
-        .user-nav { display: flex; gap: 15px; align-items: center; }
+        .user-nav { display: flex; gap: 12px; align-items: center; }
         
         /* Modern Butonlar */
         .btn {
@@ -49,64 +53,120 @@
         .btn-dice { background: #f39c12; color: white; }
         .btn-list { background: var(--card-bg); color: white; border: 1px solid rgba(255,255,255,0.2); }
         .btn-auth { background: white; color: #333; }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
 
-        /* Arama Kutusu Gelişmiş Tasarım */
+        /* Arama Alanı */
         .search-container {
             background: var(--card-bg); backdrop-filter: blur(15px);
-            padding: 35px; border-radius: 24px; width: 100%; max-width: 600px;
+            padding: 30px; border-radius: 24px; width: 100%; max-width: 600px;
             margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .direct-search-box { display: flex; background: rgba(255,255,255,0.1); border-radius: 15px; padding: 5px; margin-bottom: 25px; }
+        .direct-search-box { display: flex; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 5px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .direct-search-box input { background: transparent; border: none; color: white; padding: 12px; flex: 1; outline: none; }
-        .btn-search { background: var(--primary-color); border-radius: 12px; color: white; padding: 0 20px; border: none; cursor: pointer; }
+        .btn-search { background: var(--primary-color); border-radius: 10px; color: white; padding: 0 15px; border: none; cursor: pointer; }
 
-        /* Kart Tasarımı (Netflix Style) */
-        #results { width: 100%; max-width: 1100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        /* Kart Tasarımı */
+        #results { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
 
         .movie-card {
-            background: var(--card-bg); border-radius: 20px; overflow: hidden;
+            background: var(--card-bg); border-radius: 18px; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1); transition: 0.4s; position: relative;
+            cursor: pointer; display: flex; flex-direction: column;
         }
-        .movie-card:hover { transform: translateY(-10px); border-color: var(--primary-color); box-shadow: 0 15px 30px rgba(1, 180, 228, 0.2); }
+        .movie-card:hover { transform: translateY(-8px); border-color: var(--primary-color); box-shadow: 0 12px 24px rgba(1, 180, 228, 0.2); }
 
-        .movie-poster-container { position: relative; height: 400px; overflow: hidden; }
-        .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .movie-card:hover .movie-poster { scale: 1.1; }
+        .movie-poster-container { position: relative; height: 380px; overflow: hidden; }
+        .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; }
+        .movie-card:hover .movie-poster { transform: scale(1.08); }
 
-        /* Kart Üstü Bilgiler */
-        .rating-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); padding: 5px 10px; border-radius: 8px; font-weight: bold; color: #ffbc00; }
-        .status-badge { position: absolute; top: 15px; left: 15px; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .rating-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 8px; font-weight: bold; color: #ffbc00; font-size: 13px; z-index: 2; }
+        .status-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; z-index: 2; }
         .status-watched { background: var(--secondary-color); color: #000; }
 
-        .movie-content { padding: 20px; }
-        .movie-title { margin: 0 0 10px 0; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-overview { font-size: 13px; color: #aaa; height: 60px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 20px; }
+        .movie-content { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; }
+        .movie-title { margin: 0 0 8px 0; font-size: 18px; font-weight: 600; }
+        .movie-overview { font-size: 13px; color: #bbb; line-height: 1.4; height: 55px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 15px; }
 
-        /* Puanlama Sistemi (YENİ) */
-        .user-rating-box { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
-        .user-rating-box input { width: 50px; background: transparent; border: 1px solid var(--primary-color); color: white; border-radius: 5px; text-align: center; }
-
-        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-sm { padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; color: white; text-align: center; text-decoration: none; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+        .btn-sm { padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; color: white; text-align: center; transition: 0.2s; }
+        .btn-sm:hover { opacity: 0.8; }
         .bg-red { background: var(--accent-color); }
         .bg-blue { background: var(--primary-color); }
         .bg-green { background: #27ae60; }
         .btn-full { grid-column: 1 / -1; margin-top: 5px; }
 
-        /* Filtre Alanı Şıklığı */
-        .mood-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 25px; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
-        select, input[type="number"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 10px; width: 100%; outline: none; }
+        /* MODAL TASARIMI (YENİ) */
+        #movieModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center;
+            align-items: center; z-index: 1000; backdrop-filter: blur(8px);
+            padding: 20px; box-sizing: border-box;
+        }
+
+        .modal-container {
+            background: var(--modal-bg); width: 100%; max-width: 900px;
+            max-height: 90vh; border-radius: 24px; position: relative;
+            overflow-y: auto; display: flex; flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: modalFade 0.4s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute; top: 20px; right: 20px; font-size: 30px;
+            color: #fff; cursor: pointer; z-index: 10; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); border-radius: 50%;
+        }
+
+        .modal-body { display: flex; flex-direction: row; gap: 30px; padding: 40px; }
+        @media (max-width: 768px) {
+            .modal-body { flex-direction: column; padding: 20px; }
+            .modal-poster { width: 100% !important; height: auto !important; }
+        }
+
+        .modal-poster { width: 300px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-details { flex: 1; }
+        .modal-header h2 { margin: 0 0 10px 0; font-size: 28px; color: var(--primary-color); }
+        .modal-meta { display: flex; gap: 15px; color: #888; font-size: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+        .modal-meta span i { color: var(--primary-color); margin-right: 5px; }
         
+        .modal-section-title { font-size: 16px; font-weight: 600; margin: 25px 0 10px 0; color: #eee; border-left: 4px solid var(--primary-color); padding-left: 10px; }
+        .modal-desc { line-height: 1.6; color: #ccc; font-size: 15px; }
+
+        /* Oyuncu Kadrosu Tasarımı */
+        .cast-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; margin-top: 15px; }
+        .cast-item { text-align: center; }
+        .cast-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin-bottom: 5px; border: 2px solid rgba(255,255,255,0.1); }
+        .cast-name { font-size: 11px; font-weight: 600; display: block; color: #fff; }
+        .cast-char { font-size: 10px; color: #888; }
+
+        /* Yardımcı Sınıflar */
+        .section-title { grid-column: 1 / -1; text-align: center; color: var(--primary-color); margin: 20px 0; font-size: 22px; }
+        .mood-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 25px; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .welcome-msg { font-size: 13px; color: var(--primary-color); margin-right: 10px; }
     </style>
 </head>
 <body>
 
     <div id="dynamic-bg"></div>
+
+    <!-- MODAL YAPI -->
+    <div id="movieModal">
+        <div class="modal-container">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalContent">
+                <!-- JS ile dolacak -->
+            </div>
+        </div>
+    </div>
 
     <div class="header-bar">
         <a href="#" class="logo" onclick="location.reload()">🎬 Ne İzlesem?</a>
@@ -120,37 +180,35 @@
 
     <div class="search-container" id="searchSection">
         <div class="direct-search-box">
-            <input type="text" id="searchInput" placeholder="Film, dizi veya oyuncu ara...">
+            <input type="text" id="searchInput" placeholder="Film, yönetmen veya oyuncu ara...">
             <button class="btn-search" onclick="searchByName()"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
         
         <div class="mood-container">
-            <button class="btn-mood btn" onclick="setMood('kafa_dagitmalik')">🤪 Kafa Dağıtmalık</button>
-            <button class="btn-mood btn" onclick="setMood('beyin_yakan')">🤯 Beyin Yakanlar</button>
-            <button class="btn-mood btn" onclick="setMood('kaliteli_dram')">🎭 Kaliteli Dram</button>
-            <button class="btn-mood btn" onclick="setMood('korku_gecesi')">👻 Korku Gecesi</button>
+            <button class="btn btn-mood" onclick="setMood('kafa_dagitmalik')">🤪 Kafa Dağıtmalık</button>
+            <button class="btn btn-mood" onclick="setMood('beyin_yakan')">🤯 Beyin Yakanlar</button>
+            <button class="btn btn-mood" onclick="setMood('kaliteli_dram')">🎭 Kaliteli Dram</button>
+            <button class="btn btn-mood" onclick="setMood('korku_gecesi')">👻 Korku Gecesi</button>
         </div>
 
         <div class="input-row">
-            <div class="input-group">
-                <label style="font-size: 12px; color: #888;">Tür</label>
+            <div class="input-group" style="flex:1">
                 <select id="genre">
                     <option value="28">Aksiyon</option><option value="878">Bilim Kurgu</option><option value="18">Dram</option>
                     <option value="53">Gerilim</option><option value="35">Komedi</option><option value="27">Korku</option><option value="10749">Romantik</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label style="font-size: 12px; color: #888;">Yıl</label>
+            <div class="input-group" style="flex:1">
                 <input type="number" id="year" value="2024">
             </div>
         </div>
 
         <div style="margin-top: 20px;">
-            <label style="display:flex; justify-content:space-between; font-size:12px; color:#888;">Minimum Puan: <span id="ratingValue" style="color:var(--primary-color)">7.0</span></label>
+            <label style="display:flex; justify-content:space-between; font-size:12px; color:#888; margin-bottom:5px;">Minimum Puan: <span id="ratingValue" style="color:var(--primary-color)">7.0</span></label>
             <input type="range" id="rating" min="0" max="10" step="0.5" value="7.0" style="width:100%; accent-color:var(--primary-color)" oninput="document.getElementById('ratingValue').innerText = this.value">
         </div>
 
-        <button class="btn btn-primary bg-blue" style="width:100%; justify-content:center; margin-top:25px;" onclick="getMovies()">FİLM BUL</button>
+        <button class="btn bg-blue" style="width:100%; justify-content:center; margin-top:20px;" onclick="getMovies()">FİLM KEŞFET</button>
     </div>
 
     <div id="results"></div>
@@ -160,6 +218,7 @@
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // Firebase Yapılandırması
         const firebaseConfig = {
             apiKey: "AIzaSyCgZUjN5VzN-z16ENQK-lDvLOZ8TXWAe4o",
             authDomain: "ne-izlesem-app-58868.firebaseapp.com",
@@ -178,13 +237,14 @@
         let currentUser = null;
         let currentDisplayedMovies = [];
 
+        // Auth Takibi
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const authBtn = document.getElementById('auth-btn');
             const welcome = document.getElementById('user-welcome');
             if (user) {
-                welcome.innerText = `Selam, ${user.displayName.split(' ')[0]}`;
-                authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Çıkış`;
+                welcome.innerText = `Merhaba, ${user.displayName.split(' ')[0]}`;
+                authBtn.innerHTML = `<i class="fa-solid fa-power-off"></i> Çıkış`;
                 authBtn.onclick = () => signOut(auth);
             } else {
                 welcome.innerText = "";
@@ -195,24 +255,99 @@
 
         window.login = async () => { try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); } };
 
-        // FİREBASE: İzleme Listesi ve Puanlama
-        window.addToWatchlist = async (movieId) => {
-            if (!currentUser) return alert("Önce giriş yapmalıs stubborn!");
+        // MODAL FONKSİYONLARI
+        window.openModal = async (movieId) => {
+            const modal = document.getElementById('movieModal');
+            const content = document.getElementById('modalContent');
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            content.innerHTML = "<div style='padding:50px; text-align:center;'><i class='fa-solid fa-circle-notch fa-spin fa-2xl' style='color:var(--primary-color)'></i></div>";
+
+            try {
+                // Film Detayları ve Oyuncuları Çek
+                const [movieRes, creditsRes] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=tr-TR`),
+                    fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${API_KEY}&language=tr-TR`)
+                ]);
+                
+                const movie = await movieRes.json();
+                const credits = await creditsRes.json();
+
+                const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=Afiş+Yok';
+                const runtime = movie.runtime ? `${movie.runtime} dk` : 'Bilinmiyor';
+                const genres = movie.genres.map(g => g.name).join(', ');
+                const cast = credits.cast.slice(0, 6);
+
+                let castHTML = "";
+                cast.forEach(person => {
+                    const profile = person.profile_path ? `https://image.tmdb.org/t/p/w185${person.profile_path}` : 'https://via.placeholder.com/185x185?text=Yok';
+                    castHTML += `
+                        <div class="cast-item">
+                            <img src="${profile}" class="cast-img">
+                            <span class="cast-name">${person.name}</span>
+                            <span class="cast-char">${person.character}</span>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = `
+                    <div class="modal-body">
+                        <img src="${poster}" class="modal-poster">
+                        <div class="modal-details">
+                            <div class="modal-header">
+                                <h2>${movie.title}</h2>
+                                <div class="modal-meta">
+                                    <span><i class="fa-solid fa-star"></i> ${movie.vote_average.toFixed(1)}</span>
+                                    <span><i class="fa-solid fa-clock"></i> ${runtime}</span>
+                                    <span><i class="fa-solid fa-calendar"></i> ${movie.release_date.split('-')[0]}</span>
+                                </div>
+                                <div style="font-size:13px; color:#888; margin-bottom:15px;">Türler: ${genres}</div>
+                            </div>
+                            
+                            <div class="modal-section-title">Film Özeti</div>
+                            <p class="modal-desc">${movie.overview || 'Bu film için henüz bir özet girilmemiş.'}</p>
+                            
+                            <div class="modal-section-title">Oyuncu Kadrosu</div>
+                            <div class="cast-list">
+                                ${castHTML || 'Oyuncu bilgisi bulunamadı.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                content.innerHTML = "<p style='padding:40px; text-align:center;'>Detaylar yüklenirken bir hata oluştu.</p>";
+            }
+        };
+
+        window.closeModal = () => {
+            document.getElementById('movieModal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
+
+        // Esc tuşu ile modalı kapatma
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') closeModal();
+        });
+
+        // Veritabanı İşlemleri
+        window.addToWatchlist = async (movieId, event) => {
+            if(event) event.stopPropagation(); // Kart tıklamasını engelle
+            if (!currentUser) return alert("Lütfen önce giriş yapın!");
             const movie = currentDisplayedMovies.find(m => m.id === movieId);
             try {
                 const colRef = collection(db, "users", currentUser.uid, "watchlist");
                 const q = query(colRef, where("id", "==", movieId));
                 const snap = await getDocs(q);
-                if (!snap.empty) return alert("Zaten listede!");
+                if (!snap.empty) return alert("Bu film zaten listende!");
 
                 await addDoc(colRef, { ...movie, watched: false, myScore: 0, addedAt: new Date() });
-                alert("Listeye eklendi! 🍿");
+                alert("Listene eklendi! 🍿");
             } catch (e) { console.error(e); }
         };
 
-        window.toggleWatched = async (movieId, status) => {
-            const userRef = collection(db, "users", currentUser.uid, "watchlist");
-            const q = query(userRef, where("id", "==", movieId));
+        window.toggleWatched = async (movieId, status, event) => {
+            if(event) event.stopPropagation();
+            const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
             const snap = await getDocs(q);
             snap.forEach(async (d) => {
                 await updateDoc(doc(db, "users", currentUser.uid, "watchlist", d.id), { watched: !status });
@@ -220,36 +355,26 @@
             window.showWatchlist();
         };
 
-        window.updateMyScore = async (movieId, score) => {
-            const userRef = collection(db, "users", currentUser.uid, "watchlist");
-            const q = query(userRef, where("id", "==", movieId));
-            const snap = await getDocs(q);
-            snap.forEach(async (d) => {
-                await updateDoc(doc(db, "users", currentUser.uid, "watchlist", d.id), { myScore: Number(score) });
-            });
-        };
-
-        window.removeFromWatchlist = async (movieId) => {
-            const userRef = collection(db, "users", currentUser.uid, "watchlist");
-            const q = query(userRef, where("id", "==", movieId));
+        window.removeFromWatchlist = async (movieId, event) => {
+            if(event) event.stopPropagation();
+            const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
             const snap = await getDocs(q);
             snap.forEach(async (d) => await deleteDoc(doc(db, "users", currentUser.uid, "watchlist", d.id)));
             window.showWatchlist();
         };
 
         window.showWatchlist = async () => {
-            if (!currentUser) return alert("Giriş yapmalısın!");
+            if (!currentUser) return alert("Listeni görmek için giriş yapmalısın.");
             document.getElementById('searchSection').style.display = 'none';
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = "<h2 class='section-title'>Kütüphanem Yükleniyor...</h2>";
-
+            resultsDiv.innerHTML = "<h2 class='section-title'>Kütüphanen taranıyor...</h2>";
             const snap = await getDocs(collection(db, "users", currentUser.uid, "watchlist"));
             const list = [];
             snap.forEach(d => list.push(d.data()));
             renderMoviesToDOM(list, "Kütüphanem 📚", true);
         };
 
-        // TMDB & RENDER
+        // API Fonksiyonları
         window.getMovies = async () => {
             const g = document.getElementById('genre').value;
             const y = document.getElementById('year').value;
@@ -257,24 +382,26 @@
             const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${g}&primary_release_year=${y}&vote_average.gte=${r}&vote_count.gte=100&language=tr-TR&sort_by=popularity.desc`;
             const res = await fetch(url);
             const data = await res.json();
-            renderMoviesToDOM(data.results.slice(0, 12), "Senin İçin Seçtiklerimiz 🍿");
+            renderMoviesToDOM(data.results.slice(0, 12), "Keşif Listesi 🍿");
         };
 
         window.searchByName = async () => {
             const q = document.getElementById('searchInput').value;
+            if(!q) return;
             const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${q}&language=tr-TR`);
             const data = await res.json();
-            renderMoviesToDOM(data.results.slice(0, 12), `"${q}" Sonuçları`);
+            renderMoviesToDOM(data.results.slice(0, 12), `"${q}" İçin Sonuçlar`);
         };
 
         window.getRandomMovie = async () => {
-            const p = Math.floor(Math.random() * 20) + 1;
-            const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&vote_average.gte=7.5&language=tr-TR&page=${p}`);
+            const p = Math.floor(Math.random() * 30) + 1;
+            const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&vote_average.gte=7.8&vote_count.gte=1000&language=tr-TR&page=${p}`);
             const data = await res.json();
             const movie = data.results[Math.floor(Math.random() * data.results.length)];
             renderMoviesToDOM([movie], "Gecenin Şanslısı 🎲");
         };
 
+        // DOM Render
         window.renderMoviesToDOM = async (movies, title, isLibrary = false) => {
             currentDisplayedMovies = movies;
             const resultsDiv = document.getElementById('results');
@@ -288,6 +415,8 @@
                 const poster = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750?text=Afiş+Yok';
                 const card = document.createElement('div');
                 card.className = 'movie-card';
+                card.onclick = () => openModal(m.id); // Karta tıklayınca modal aç
+
                 card.innerHTML = `
                     <div class="movie-poster-container">
                         <img src="${poster}" class="movie-poster">
@@ -297,27 +426,26 @@
                     <div class="movie-content">
                         <h3 class="movie-title">${m.title}</h3>
                         <p class="movie-overview">${m.overview || 'Özet bulunmuyor.'}</p>
-                        
-                        ${isLibrary ? `
-                            <div class="user-rating-box">
-                                <span>Puanım:</span>
-                                <input type="number" min="0" max="10" value="${m.myScore || 0}" onchange="updateMyScore(${m.id}, this.value)">
-                            </div>
-                        ` : ''}
-
                         <div class="action-buttons">
-                            <button class="btn-sm bg-blue" onclick="getSimilarMovies(${m.id}, '${m.title.replace(/'/g, "\\'")}')">Benzerler</button>
                             ${isLibrary ? `
-                                <button class="btn-sm bg-green" onclick="toggleWatched(${m.id}, ${m.watched})">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
-                                <button class="btn-sm bg-red btn-full" onclick="removeFromWatchlist(${m.id})">Kaldır</button>
+                                <button class="btn-sm bg-green" onclick="toggleWatched(${m.id}, ${m.watched}, event)">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
+                                <button class="btn-sm bg-red btn-full" onclick="removeFromWatchlist(${m.id}, event)">Kaldır</button>
                             ` : `
-                                <button class="btn-sm bg-green" onclick="addToWatchlist(${m.id})">Listeye Ekle</button>
+                                <button class="btn-sm bg-blue" onclick="getSimilarMovies(${m.id}, '${m.title.replace(/'/g, "\\'")}', event)">Benzerler</button>
+                                <button class="btn-sm bg-green" onclick="addToWatchlist(${m.id}, event)">Listeye Ekle</button>
                             `}
                         </div>
                     </div>
                 `;
                 resultsDiv.appendChild(card);
             });
+        };
+
+        window.getSimilarMovies = async (id, name, event) => {
+            if(event) event.stopPropagation();
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${API_KEY}&language=tr-TR`);
+            const data = await res.json();
+            renderMoviesToDOM(data.results.slice(0, 6), `"${name}" Benzerleri ✨`);
         };
 
         window.setMood = (mood) => {
@@ -327,12 +455,6 @@
             if(mood==='kaliteli_dram') g.value="18";
             if(mood==='korku_gecesi') g.value="27";
             getMovies();
-        };
-
-        window.getSimilarMovies = async (id, name) => {
-            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${API_KEY}&language=tr-TR`);
-            const data = await res.json();
-            renderMoviesToDOM(data.results.slice(0, 6), `"${name}" Benzeri Filmler ✨`);
         };
     </script>
 </body>
