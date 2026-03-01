@@ -197,7 +197,7 @@
     <div id="results"></div>
 
     <script type="module">
-        // PWA manifest verisi (İndirme butonu blob hatası sebebiyle kaldırılmıştır)
+        // PWA manifest verisi
         const manifest = {
             "name": "Ne İzlesem?", "short_name": "Neİzlesem", "start_url": ".", "display": "standalone",
             "background_color": "#0d1117", "theme_color": "#01b4e4",
@@ -226,7 +226,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'film-oneri-sistemi';
 
         const API_KEY = 'd0101ce0dec20d3b12853cabffd10e74';
-        const GEMINI_API_KEY = "AIzaSyAR86jKni_R74wNLV0KTlFWoPvN2IsRqHU"; // Ortam tarafından otomatik doldurulacak
+        const GEMINI_API_KEY = "AIzaSyAR86jKni_R74wNLV0KTlFWoPvN2IsRqHU";
         
         let currentUser = null;
         let currentDisplayedMovies = [];
@@ -370,13 +370,15 @@
             document.querySelector('#results h2').innerHTML = `<i class="fa-solid fa-robot fa-bounce"></i> AI senin için film/dizi seçiyor...`;
             currentApiUrl = ""; // Infinite scroll disabled
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
+            // MODELD DEĞİŞİKLİĞİ: gemini-1.5-flash genel api kullanımına daha uygundur
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             const payload = {
                 contents: [{ parts: [{ text: `Kullanıcı isteği: "${prompt}". Lütfen bu isteğe tam uyan 4 adet TMDB'de bulunan gerçek film veya dizinin sadece orijinal adlarını aralarına virgül koyarak yaz. Başka hiçbir kelime, sembol veya açıklama ekleme. (Örnek çıktı: Inception, The Matrix, Seven, Fight Club)` }] }]
             };
 
             try {
                 const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error("API isteği başarısız oldu");
                 const result = await response.json();
                 const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 
@@ -400,7 +402,8 @@
                 }
 
             } catch (err) {
-                showToast("AI bağlantı hatası", "error");
+                console.error(err);
+                showToast("AI bağlantı hatası: " + err.message, "error");
                 document.getElementById('results').innerHTML = "";
             }
         };
@@ -787,14 +790,19 @@
             } catch (e) { return { avg: "0.0", count: 0, reviews: [] }; }
         }
 
+        // MODELD DEĞİŞİKLİĞİ: gemini-1.5-flash genel api kullanımına daha uygundur
         async function translateToTurkishWithAI(text) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             const payload = { contents: [{ parts: [{ text: `Çevir:\n${text}` }] }], systemInstruction: { parts: [{ text: "Uzman bir çevirmen gibi doğal bir Türkçeye çevir. Sadece çeviriyi yaz." }] } };
             try {
                 const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error("API isteği başarısız oldu");
                 const result = await response.json();
                 return result.candidates?.[0]?.content?.parts?.[0]?.text || text;
-            } catch (error) { return text; }
+            } catch (error) {
+                console.error(error); 
+                return text; 
+            }
         }
     </script>
 </body>
