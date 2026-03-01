@@ -20,12 +20,13 @@
 
         #dynamic-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); background-size: cover; background-position: center; filter: blur(25px) brightness(0.2); z-index: -1; transition: background-image 1.2s ease; }
 
-        body { font-family: 'Poppins', sans-serif; color: #fff; margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; background-color: var(--bg-dark); overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; color: #fff; margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; background-color: var(--bg-dark); overflow-x: hidden; scroll-behavior: smooth; }
         body.modal-open { overflow: hidden; }
 
         /* Header & Nav */
         .header-bar { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap:15px; }
-        .logo { font-size: 26px; font-weight: 600; color: var(--primary-color); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 26px; font-weight: 600; color: var(--primary-color); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .logo:hover { transform: scale(1.05); text-shadow: 0 0 15px rgba(1, 180, 228, 0.5); }
         .user-nav { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
         .btn { border: none; padding: 10px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 14px; }
@@ -39,7 +40,7 @@
         /* Arama & Filtre (Glassmorphism) */
         .search-container { background: var(--card-bg); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; width: 100%; max-width: 800px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.6); }
         .direct-search-box { display: flex; background: rgba(255,255,255,0.05); border-radius: 20px; padding: 8px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.15); transition: 0.3s; }
-        .direct-search-box:focus-within { border-color: var(--primary-color); background: rgba(255,255,255,0.1); }
+        .direct-search-box:focus-within { border-color: var(--primary-color); background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(1, 180, 228, 0.2); }
         .direct-search-box input { background: transparent; border: none; color: white; padding: 12px; flex: 1; outline: none; font-size: 16px; }
 
         .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
@@ -57,8 +58,8 @@
         
         .rating-badges { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 2; }
         .badge { background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 11px; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.1); }
-        .imdb-badge { color: #ffbc00; } .site-badge { color: var(--site-rating-color); border-color: var(--site-rating-color); }
-        .type-badge { position: absolute; top: 10px; left: 10px; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 2; text-transform: uppercase; }
+        .site-badge { color: var(--site-rating-color); border-color: var(--site-rating-color); }
+        .type-badge { position: absolute; top: 10px; left: 10px; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 2; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
         .movie-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
         .movie-title { margin: 0 0 8px 0; font-size: 17px; font-weight: 600; }
@@ -108,6 +109,11 @@
         .btn-full { grid-column: 1 / -1; margin-top: 5px; }
         .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
         
+        /* Scroll to Top Butonu */
+        #scrollTopBtn { opacity: 0; pointer-events: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background: var(--primary-color); color: white; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        #scrollTopBtn.visible { opacity: 1; pointer-events: auto; }
+        #scrollTopBtn:hover { transform: translateY(-5px) scale(1.1); background: white; color: var(--primary-color); }
+
         /* Loading trigger for infinite scroll */
         #load-more-trigger { grid-column: 1 / -1; height: 20px; }
     </style>
@@ -115,6 +121,11 @@
 <body>
 
     <div id="dynamic-bg"></div>
+
+    <!-- YENİ: Scroll to Top Butonu -->
+    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Yukarı Çık">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <!-- Toast Bildirim Alanı -->
     <div id="toast-container" class="toast-container"></div>
@@ -133,7 +144,7 @@
             <span class="modal-close" onclick="closeModal('aiPromptModal')">&times;</span>
             <h2 style="color:var(--primary-color);"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Asistan</h2>
             <p style="color:#bbb; font-size:14px;">Nasıl bir şey izlemek istersin? Kendi cümlelerinle tarif et.</p>
-            <textarea id="aiPromptInput" placeholder="Örn: 90'larda geçen, ters köşe yapan gerilim dolu dedektiflik filmleri..."></textarea>
+            <textarea id="aiPromptInput" placeholder="Örn: 90'larda geçen, ters köşe yapan gerilim dolu dedektiflik filmleri... (Aramak için Enter'a bas)"></textarea>
             <button class="btn btn-ai" style="width:100%; justify-content:center; padding:15px; font-size:16px;" onclick="searchWithAI()">Bana Film Bul 🤖</button>
         </div>
     </div>
@@ -237,6 +248,16 @@
         let currentApiUrl = "";
         let currentPage = 1;
         let isFetching = false;
+
+        // YENİ: Sayfa aşağı kaydırıldığında Scroll To Top butonunu göster
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 500) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
 
         // Profesyonel Toast (Bildirim) Sistemi
         window.showToast = (message, type = 'success') => {
@@ -357,11 +378,21 @@
             else renderMoviesToDOM(filtered.slice(0, 16), `"${q}" Sonuçları`);
         };
 
-        // YAPAY ZEKA İLE ARAMA FONKSİYONU (Hala Gemini kullanır, çünkü akıl yürütme gerekir)
+        // YAPAY ZEKA İLE ARAMA FONKSİYONU
         window.openAIModal = () => {
             document.getElementById('aiPromptModal').style.display = 'flex';
             document.body.classList.add('modal-open');
+            // Modalı açtığımızda direkt yazı yazabilmesi için odaklan
+            setTimeout(() => document.getElementById('aiPromptInput').focus(), 100);
         };
+
+        // YENİ: AI Asistan input alanında Enter tuşuna basılınca aramayı tetikle
+        document.getElementById('aiPromptInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Yeni satıra geçmesini engelle
+                window.searchWithAI();
+            }
+        });
 
         window.searchWithAI = async () => {
             const prompt = document.getElementById('aiPromptInput').value;
@@ -445,6 +476,14 @@
                 const typeLabel = mediaType === 'tv' ? 'DİZİ' : 'FİLM';
                 const shortOverview = m.overview || '<span style="color:#888; font-style:italic;"><i class="fa-solid fa-language"></i> Türkçe özet yok. Çeviri için tıklayın.</span>';
                 
+                // YENİ: Dinamik Puan Rengi Belirleme
+                const ratingValue = m.vote_average || 0;
+                let ratingColor = ratingValue >= 8 ? '#27ae60' : (ratingValue >= 6 ? '#f39c12' : '#e74c3c');
+
+                // YENİ: Çıkış Yılı Rozeti
+                const releaseYear = (m.release_date || m.first_air_date || '').split('-')[0];
+                const yearBadge = releaseYear ? `<div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); padding:4px 8px; border-radius:8px; font-size:11px; font-weight:bold; z-index:2; border:1px solid rgba(255,255,255,0.1);">📅 ${releaseYear}</div>` : '';
+
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.onclick = () => window.openModal(m.id, mediaType);
@@ -453,8 +492,10 @@
                     <div class="movie-poster-container">
                         <img src="${poster}" class="movie-poster">
                         <div class="type-badge">${typeLabel}</div>
+                        ${yearBadge}
                         <div class="rating-badges">
-                            <div class="badge imdb-badge">⭐ ${(m.vote_average || 0).toFixed(1)}</div>
+                            <!-- Dinamik renkli rozet -->
+                            <div class="badge" style="color: ${ratingColor}; border-color: ${ratingColor}40;">⭐ ${ratingValue.toFixed(1)}</div>
                             <div class="badge site-badge">💎 ${siteData.avg}</div>
                         </div>
                     </div>
