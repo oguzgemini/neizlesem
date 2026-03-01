@@ -227,8 +227,8 @@
 
         const API_KEY = 'd0101ce0dec20d3b12853cabffd10e74';
         
-        // Canvas ortamının çalışabilmesi için anahtar boş bırakıldı. Kendi sunucuna geçerken buraya kendi API anahtarını girebilirsin.
-        const GEMINI_API_KEY = ""; 
+        // Bu anahtar sadece AI ile film arama bölümünde kullanılacak.
+        const GEMINI_API_KEY = "AIzaSyAR86jKni_R74wNLV0KTlFWoPvN2IsRqHU"; 
         
         let currentUser = null;
         let currentDisplayedMovies = [];
@@ -357,7 +357,7 @@
             else renderMoviesToDOM(filtered.slice(0, 16), `"${q}" Sonuçları`);
         };
 
-        // YAPAY ZEKA İLE ARAMA FONKSİYONU
+        // YAPAY ZEKA İLE ARAMA FONKSİYONU (Hala Gemini kullanır, çünkü akıl yürütme gerekir)
         window.openAIModal = () => {
             document.getElementById('aiPromptModal').style.display = 'flex';
             document.body.classList.add('modal-open');
@@ -372,7 +372,7 @@
             document.querySelector('#results h2').innerHTML = `<i class="fa-solid fa-robot fa-bounce"></i> AI senin için film/dizi seçiyor...`;
             currentApiUrl = ""; // Infinite scroll disabled
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             const payload = {
                 contents: [{ parts: [{ text: `Kullanıcı isteği: "${prompt}". Lütfen bu isteğe tam uyan 4 adet TMDB'de bulunan gerçek film veya dizinin sadece orijinal adlarını aralarına virgül koyarak yaz. Başka hiçbir kelime, sembol veya açıklama ekleme. (Örnek çıktı: Inception, The Matrix, Seven, Fight Club)` }] }]
             };
@@ -443,7 +443,7 @@
                 const itemTitle = m.title || m.name;
                 const mediaType = m.media_type || 'movie';
                 const typeLabel = mediaType === 'tv' ? 'DİZİ' : 'FİLM';
-                const shortOverview = m.overview || '<span style="color:#888; font-style:italic;"><i class="fa-solid fa-robot"></i> Türkçe özet yok. Karta tıklayın.</span>';
+                const shortOverview = m.overview || '<span style="color:#888; font-style:italic;"><i class="fa-solid fa-language"></i> Türkçe özet yok. Çeviri için tıklayın.</span>';
                 
                 const card = document.createElement('div');
                 card.className = 'movie-card';
@@ -555,10 +555,10 @@
                         const enRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${movieId}?api_key=${API_KEY}&language=en-US`);
                         const enData = await enRes.json();
                         if (enData.overview) {
-                            finalOverview = `<div id="ai-translation-box" style="padding:15px; background:rgba(1, 180, 228, 0.1); border-left:4px solid var(--primary-color); border-radius:8px; margin-bottom: 10px;"><i class="fa-solid fa-robot fa-bounce" style="color:var(--primary-color);"></i> AI Türkçe çeviri yapıyor...</div><div style="font-size:12px; color:#888;"><b>EN:</b> ${enData.overview}</div>`;
+                            finalOverview = `<div id="ai-translation-box" style="padding:15px; background:rgba(1, 180, 228, 0.1); border-left:4px solid var(--primary-color); border-radius:8px; margin-bottom: 10px;"><i class="fa-solid fa-language fa-fade" style="color:var(--primary-color);"></i> Türkçeye çevriliyor...</div><div style="font-size:12px; color:#888;"><b>Orijinal:</b> ${enData.overview}</div>`;
                             translateToTurkishWithAI(enData.overview).then(text => {
                                 const box = document.getElementById('ai-translation-box');
-                                if(box) box.innerHTML = `<span style="color:var(--primary-color); font-size:12px; display:block; margin-bottom:5px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Çevirisi:</span><span style="color:#eee; font-size:14px;">${text}</span>`;
+                                if(box) box.innerHTML = `<span style="color:var(--primary-color); font-size:12px; display:block; margin-bottom:5px;"><i class="fa-solid fa-language"></i> Türkçe Çeviri:</span><span style="color:#eee; font-size:14px;">${text}</span>`;
                             });
                         }
                     } catch (e) {}
@@ -791,20 +791,23 @@
             } catch (e) { return { avg: "0.0", count: 0, reviews: [] }; }
         }
 
-        // YAPAY ZEKA ÇEVİRİ KOMUTU GÜNCELLENDİ VE MODEL DEĞİŞTİRİLDİ
+        // YENİ: API KEY GEREKTİRMEYEN GOOGLE TRANSLATE API'Sİ ENTEGRE EDİLDİ
         async function translateToTurkishWithAI(text) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
-            const payload = {
-                contents: [{ parts: [{ text: text }] }],
-                systemInstruction: { parts: [{ text: "Sen profesyonel bir çevirmensin. Gelen İngilizce özetleri eksiksiz bir biçimde akıcı Türkçeye çevir. Çıktı SADECE Türkçe metin olmalıdır, asla İngilizce metin veya ekstra bir açıklama içermemelidir." }] }
-            };
             try {
-                const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error("API isteği başarısız oldu");
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=tr&dt=t&q=${encodeURIComponent(text)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Çeviri API'si yanıt vermedi.");
                 const result = await response.json();
-                return result.candidates?.[0]?.content?.parts?.[0]?.text || text;
+                
+                let translatedText = "";
+                if (result && result[0]) {
+                    result[0].forEach(segment => {
+                        if (segment[0]) translatedText += segment[0];
+                    });
+                }
+                return translatedText || text;
             } catch (error) {
-                console.error(error); 
+                console.error("Çeviri Hatası:", error); 
                 return text; 
             }
         }
