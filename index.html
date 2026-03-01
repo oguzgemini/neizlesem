@@ -197,15 +197,6 @@
     <div id="results"></div>
 
     <script type="module">
-        // PWA manifest verisi (İndirme butonu blob hatası sebebiyle kaldırılmıştır)
-        const manifest = {
-            "name": "Ne İzlesem?", "short_name": "Neİzlesem", "start_url": ".", "display": "standalone",
-            "background_color": "#0d1117", "theme_color": "#01b4e4",
-            "icons": [{"src": "https://via.placeholder.com/192x192/01b4e4/ffffff.png?text=NI", "sizes": "192x192", "type": "image/png"}]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-        document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -459,11 +450,11 @@
                         <p class="movie-overview">${shortOverview}</p>
                         <div class="action-buttons">
                             ${isLibrary ? `
-                                <button class="btn-sm bg-green" onclick="toggleWatched(${m.id}, ${m.watched}, event)">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
-                                <button class="btn-sm bg-red btn-full" onclick="removeFromWatchlist(${m.id}, event)">Kaldır</button>
+                                <button class="btn-sm bg-green" onclick="event.stopPropagation(); toggleWatched(${m.id}, ${m.watched})">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
+                                <button class="btn-sm bg-red btn-full" onclick="event.stopPropagation(); removeFromWatchlist(${m.id})">Kaldır</button>
                             ` : `
-                                <button class="btn-sm bg-blue" onclick="getSimilarMovies(${m.id}, '${itemTitle.replace(/'/g, "\\'")}', '${mediaType}', event)">Benzerler</button>
-                                <button class="btn-sm bg-green" onclick="addToWatchlist(${m.id}, '${mediaType}', event)">Kaydet</button>
+                                <button class="btn-sm bg-blue" onclick="event.stopPropagation(); getSimilarMovies(${m.id}, '${itemTitle.replace(/'/g, "\\'")}', '${mediaType}')">Benzerler</button>
+                                <button class="btn-sm bg-green" onclick="event.stopPropagation(); addToWatchlist(${m.id}, '${mediaType}')">Kaydet</button>
                             `}
                         </div>
                     </div>
@@ -648,8 +639,7 @@
             window.getMovies();
         };
 
-        window.addToWatchlist = async (movieId, mediaType, event) => {
-            if(event) event.stopPropagation();
+        window.addToWatchlist = async (movieId, mediaType) => {
             if (!currentUser) return showToast("Giriş yapmalısın!", "error");
             const movie = currentDisplayedMovies.find(m => m.id === movieId);
             const colRef = collection(db, "users", currentUser.uid, "watchlist");
@@ -669,14 +659,68 @@
             const list = []; snap.forEach(d => list.push(d.data()));
             currentApiUrl = ""; // Sonsuz kaydırmayı kapat
             
-            // Liste başlığına Excel İndirme butonu yerleştirildi
+            currentDisplayedMovies = []; // Modallar için mevcut gösterimi sıfırla
+
+            const resultsDiv = document.getElementById('results');
+            
+            // Üst başlık ve Excel butonu
             const headerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 10px;">
-                    <span>Kütüphanem 📚</span>
-                    ${list.length > 0 ? `<button class="btn bg-green" onclick="exportToExcel()" style="font-size:14px;"><i class="fa-solid fa-file-excel"></i> Arşivi İndir (Excel)</button>` : ''}
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 10px; grid-column: 1 / -1; margin-bottom: 10px;">
+                    <h2 style="margin:0; color:var(--primary-color); font-size:24px;">Kütüphanem 📚</h2>
+                    ${list.length > 0 ? `<button class="btn bg-green" onclick="exportToExcel()" style="font-size:14px;"><i class="fa-solid fa-file-excel"></i> Arşivi İndir</button>` : ''}
                 </div>
             `;
-            window.renderMoviesToDOM(list, headerHTML, true);
+            
+            resultsDiv.innerHTML = headerHTML;
+
+            if (list.length === 0) {
+                resultsDiv.innerHTML += `<div style="grid-column: 1 / -1; text-align:center; color:#aaa; font-size:16px;">Listeniz henüz boş. Hemen bir şeyler keşfet!</div>`;
+                document.getElementById('dynamic-bg').style.backgroundImage = "none";
+                return;
+            }
+
+            if (list[0].backdrop_path) {
+                document.getElementById('dynamic-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${list[0].backdrop_path})`;
+            }
+
+            // Verileri dizi ve film olarak grupla
+            const movies = list.filter(m => m.media_type === 'movie' || !m.media_type);
+            const tvShows = list.filter(m => m.media_type === 'tv');
+
+            // Önce Filmleri Bas
+            if (movies.length > 0) {
+                const movieHeader = document.createElement('h3');
+                movieHeader.style.cssText = "grid-column: 1 / -1; text-align:left; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; color:#fff; font-size:20px; margin-top:10px; margin-bottom:10px;";
+                movieHeader.innerHTML = "🎬 Filmler";
+                resultsDiv.appendChild(movieHeader);
+                await appendMoviesToDOM(movies, true);
+            }
+
+            // Sonra Dizileri Bas
+            if (tvShows.length > 0) {
+                const tvHeader = document.createElement('h3');
+                tvHeader.style.cssText = "grid-column: 1 / -1; text-align:left; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:10px; color:#fff; font-size:20px; margin-top:30px; margin-bottom:10px;";
+                tvHeader.innerHTML = "📺 Diziler";
+                resultsDiv.appendChild(tvHeader);
+                await appendMoviesToDOM(tvShows, true);
+            }
+        };
+
+        window.removeFromWatchlist = async (movieId) => {
+            const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
+            const snap = await getDocs(q);
+            snap.forEach(async (d) => await deleteDoc(doc(db, "users", currentUser.uid, "watchlist", d.id)));
+            window.showWatchlist();
+            showToast("Film listeden kaldırıldı!", "success");
+        };
+
+        window.toggleWatched = async (movieId, status) => {
+            const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
+            const snap = await getDocs(q);
+            snap.forEach(async (d) => {
+                await updateDoc(doc(db, "users", currentUser.uid, "watchlist", d.id), { watched: !status });
+            });
+            window.showWatchlist();
         };
 
         // Arşivi Excel olarak indiren fonksiyon
@@ -714,8 +758,7 @@
             }
         };
 
-        window.getSimilarMovies = async (id, name, mediaType, event) => {
-            if(event) event.stopPropagation();
+        window.getSimilarMovies = async (id, name, mediaType) => {
             renderSkeletons();
             const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/similar?api_key=${API_KEY}&language=tr-TR`);
             const data = await res.json();
