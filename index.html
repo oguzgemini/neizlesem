@@ -197,6 +197,15 @@
     <div id="results"></div>
 
     <script type="module">
+        // PWA manifest verisi (İndirme butonu blob hatası sebebiyle kaldırılmıştır)
+        const manifest = {
+            "name": "Ne İzlesem?", "short_name": "Neİzlesem", "start_url": ".", "display": "standalone",
+            "background_color": "#0d1117", "theme_color": "#01b4e4",
+            "icons": [{"src": "https://via.placeholder.com/192x192/01b4e4/ffffff.png?text=NI", "sizes": "192x192", "type": "image/png"}]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -217,7 +226,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'film-oneri-sistemi';
 
         const API_KEY = 'd0101ce0dec20d3b12853cabffd10e74';
-        const GEMINI_API_KEY = ""; // Ortam tarafından otomatik doldurulacak
+        const GEMINI_API_KEY = "AIzaSyAR86jKni_R74wNLV0KTlFWoPvN2IsRqHU"; // Ortam tarafından otomatik doldurulacak
         
         let currentUser = null;
         let currentDisplayedMovies = [];
