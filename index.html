@@ -370,7 +370,6 @@
             document.querySelector('#results h2').innerHTML = `<i class="fa-solid fa-robot fa-bounce"></i> AI senin için film/dizi seçiyor...`;
             currentApiUrl = ""; // Infinite scroll disabled
 
-            // MODELD DEĞİŞİKLİĞİ: gemini-1.5-flash genel api kullanımına daha uygundur
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             const payload = {
                 contents: [{ parts: [{ text: `Kullanıcı isteği: "${prompt}". Lütfen bu isteğe tam uyan 4 adet TMDB'de bulunan gerçek film veya dizinin sadece orijinal adlarını aralarına virgül koyarak yaz. Başka hiçbir kelime, sembol veya açıklama ekleme. (Örnek çıktı: Inception, The Matrix, Seven, Fight Club)` }] }]
@@ -790,10 +789,16 @@
             } catch (e) { return { avg: "0.0", count: 0, reviews: [] }; }
         }
 
-        // MODELD DEĞİŞİKLİĞİ: gemini-1.5-flash genel api kullanımına daha uygundur
+        // YAPAY ZEKA KESİN ÇEVİRİ KOMUTU GÜNCELLENDİ
         async function translateToTurkishWithAI(text) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-            const payload = { contents: [{ parts: [{ text: `Çevir:\n${text}` }] }], systemInstruction: { parts: [{ text: "Uzman bir çevirmen gibi doğal bir Türkçeye çevir. Sadece çeviriyi yaz." }] } };
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: `Lütfen aşağıdaki İngilizce film veya dizi özetini akıcı, doğal ve sinema diline uygun bir şekilde Türkçe'ye çevir. Sadece ve sadece Türkçe çeviriyi çıktı olarak ver, orijinal metni veya başka hiçbir ekstra açıklamayı yazma.\n\nÇevrilecek Metin:\n${text}`
+                    }]
+                }]
+            };
             try {
                 const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error("API isteği başarısız oldu");
