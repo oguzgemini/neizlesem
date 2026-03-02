@@ -32,6 +32,11 @@
         body.light-theme select option { background-color: #fff; color: #1a1a1a; }
         body.light-theme .header-bar { border-bottom: 1px solid rgba(0,0,0,0.1); }
         body.light-theme .movie-title { color: #1a1a1a; }
+        body.light-theme .season-card { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); }
+        body.light-theme .season-wrapper { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+        body.light-theme .episode-item { background: rgba(255,255,255,0.8); border-color: rgba(0,0,0,0.05); }
+        body.light-theme .stat-box { background: rgba(255,255,255,0.5); }
+        body.light-theme .modal-overlay { background: rgba(255,255,255,0.8); }
 
         #dynamic-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); background-size: cover; background-position: center; filter: blur(25px) brightness(0.2); z-index: -1; transition: background-image 1.2s ease, background-color 0.5s ease; }
         body.light-theme #dynamic-bg { filter: blur(30px) brightness(0.85); opacity: 0.6; }
@@ -61,7 +66,7 @@
 
         .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px; width: 100%; box-sizing: border-box; }
         .input-group select, .input-group input[type="number"] { box-sizing: border-box; height: 50px; background: rgba(150,150,150,0.1); border: 2px solid rgba(150,150,150,0.2); color: var(--text-main); padding: 0 15px; border-radius: 15px; width: 100%; outline: none; font-size: 14px; font-family: 'Poppins', sans-serif; transition: 0.3s; cursor: pointer; }
-        select option { background-color: #fff; color: #1a1a1a; }
+        select option { background-color: var(--bg-dark); color: var(--text-main); }
         .input-group select:focus, .input-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 15px rgba(1, 180, 228, 0.3); }
 
         /* Kart Tasarımı */
@@ -96,7 +101,6 @@
 
         /* MODAL VE YORUM SİSTEMİ */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(12px); padding: 20px; box-sizing: border-box; }
-        body.light-theme .modal-overlay { background: rgba(255,255,255,0.8); }
         .modal-container { background: var(--modal-bg); color: var(--text-main); width: 100%; max-width: 1000px; max-height: 90vh; border-radius: 28px; position: relative; overflow-y: auto; border: 1px solid rgba(150,150,150,0.2); animation: modalFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes modalFade { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: var(--text-main); cursor: pointer; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(150,150,150,0.2); border-radius: 50%; transition: 0.3s; }
@@ -109,9 +113,29 @@
         .cast-card { text-align: center; cursor: pointer; transition: 0.3s; padding: 5px; border-radius: 10px; }
         .cast-card:hover { background: rgba(1, 180, 228, 0.1); transform: translateY(-5px); }
 
+        /* YENİ: Sezon Kartları ve Bölümler */
+        .season-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; padding-right: 5px; }
+        .season-wrapper { margin-bottom: 5px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; transition: 0.3s; }
+        .season-header { display: flex; align-items: center; gap: 15px; padding: 10px; cursor: pointer; transition: 0.3s; }
+        .season-header:hover { background: rgba(1, 180, 228, 0.1); }
+        .season-poster { width: 50px; height: 75px; border-radius: 8px; object-fit: cover; }
+        .season-info { flex: 1; }
+        .season-title { margin: 0 0 5px 0; font-size: 15px; font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; padding-right: 10px; }
+        .season-meta { font-size: 12px; color: var(--text-muted); }
+        
+        .episodes-container { display: none; padding: 0 10px 10px 10px; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.1); }
+        .episode-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 13px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .episode-item:hover { background: rgba(255,255,255,0.1); border-color: var(--primary-color); }
+        .episode-info-text { display: flex; gap: 10px; align-items: center; flex: 1; }
+        .episode-number { font-weight: bold; color: var(--primary-color); min-width: 25px; }
+        
+        .episode-toggle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-muted); cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .episode-toggle:hover { border-color: var(--primary-color); transform: scale(1.1); }
+        .episode-toggle.watched { background-color: #27ae60; border-color: #27ae60; }
+        .episode-toggle.watched::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 12px; }
+
         .stats-panel { background: linear-gradient(135deg, rgba(142, 68, 173, 0.2), rgba(52, 152, 219, 0.2)); border: 1px solid rgba(142, 68, 173, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; box-sizing: border-box; }
         .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; text-align: center; }
-        body.light-theme .stat-box { background: rgba(255,255,255,0.5); }
         .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-color); margin-bottom: 5px; }
         .stat-label { font-size: 13px; color: var(--text-muted); }
 
@@ -234,7 +258,7 @@
             <input type="range" id="rating" min="0" max="10" step="0.5" value="7.0" style="width:100%; accent-color:var(--primary-color)" oninput="document.getElementById('ratingValue').innerText = this.value">
         </div>
 
-        <button class="btn bg-blue" style="width:100%; justify-content:center; margin-top:25px; padding:15px; border-radius:18px;" onclick="getMovies(true)">FİLM / DİZİ KEŞFET</button>
+        <button class="btn bg-blue" style="width:100%; justify-content:center; margin-top:25px; padding:15px; border-radius:18px;" onclick="window.getMovies(true)">FİLM / DİZİ KEŞFET</button>
     </div>
 
     <div id="results"></div>
@@ -377,14 +401,14 @@
                 isFetching = false;
                 
                 if(!data.results || data.results.length === 0) {
-                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
+                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamad. ❌</h2>";
                     return;
                 }
                 
-                // YENİ: Gelen sonuçlardan sadece ilk 12 tanesini alıyoruz (Sayfa simetrisi için)
+                // Gelen sonuçlardan sadece ilk 12 tanesini alıyoruz (Sayfa simetrisi için)
                 const mappedData = data.results.slice(0, 12).map(item => ({...item, media_type: mediaType}));
                 
-                // YENİ: Sonsuz kaydırmayı (infinite scroll) devre dışı bırakıyoruz
+                // Sonsuz kaydırmayı (infinite scroll) devre dışı bırakıyoruz
                 currentApiUrl = ""; 
                 
                 renderMoviesToDOM(mappedData, "Keşif Listesi 🍿");
@@ -450,7 +474,7 @@
                 const ratingValue = m.vote_average || 0;
                 let ratingColor = ratingValue >= 8 ? '#27ae60' : (ratingValue >= 6 ? '#f39c12' : '#e74c3c');
                 
-                // YENİ: Çıkış tarihi kontrolü ve Yakında Rozeti oluşturma
+                // Çıkış tarihi kontrolü ve Yakında Rozeti oluşturma
                 const releaseDateStr = m.release_date || m.first_air_date || '';
                 const isUpcoming = releaseDateStr && new Date(releaseDateStr) > new Date();
                 const upcomingBadgeHTML = isUpcoming ? `<div class="upcoming-badge">🔜 YAKINDA</div>` : '';
@@ -524,7 +548,7 @@
                 const cast = credits.cast ? credits.cast.slice(0, 8) : [];
                 const title = movie.title || movie.name;
                 
-                // YENİ: Çıkış tarihi kontrolü ve modal içi Yakında etiketi
+                // Çıkış tarihi kontrolü ve modal içi Yakında etiketi
                 const releaseDateStr = movie.release_date || movie.first_air_date || '';
                 const isUpcoming = releaseDateStr && new Date(releaseDateStr) > new Date();
                 const upcomingLabelHTML = isUpcoming ? `<span style="background:var(--accent-color); color:white; padding:4px 8px; border-radius:8px; font-size:12px; font-weight:bold; margin-left:10px; vertical-align:middle; display:inline-block;">🔜 Yakında</span>` : '';
@@ -533,11 +557,44 @@
                 const runtime = movie.runtime ? `${movie.runtime} dk` : (movie.episode_run_time && movie.episode_run_time.length > 0 ? `${movie.episode_run_time[0]} dk/bölüm` : '?');
 
                 let extraMetaHTML = '';
+                let seasonsHTML = ''; // YENİ: Sezonlar için HTML değişkeni
+                
                 if (mediaType === 'tv') {
                     const seasons = movie.number_of_seasons ? `${movie.number_of_seasons} Sezon` : '';
                     const episodes = movie.number_of_episodes ? `${movie.number_of_episodes} Bölüm` : '';
                     const status = movie.status === 'Ended' ? 'Final Yaptı' : (movie.status === 'Returning Series' ? 'Devam Ediyor' : 'Belirsiz');
                     extraMetaHTML = `<span><i class="fa-solid fa-layer-group"></i> ${seasons} (${episodes})</span><span><i class="fa-solid fa-circle-info"></i> ${status}</span>`;
+                    
+                    // YENİ: Sezonları listeleme
+                    if (movie.seasons && movie.seasons.length > 0) {
+                        // "Specials" (Özel Bölümler) olanları filtreleyebiliriz veya en sona atabiliriz. Genelde sezon 0 olurlar.
+                        const validSeasons = movie.seasons.filter(s => s.season_number > 0);
+                        
+                        if (validSeasons.length > 0) {
+                            seasonsHTML = `
+                                <div class="modal-section-title" style="margin-top: 25px;">Sezonlar & Bölümler</div>
+                                <div class="season-list">
+                                    ${validSeasons.map(s => {
+                                        const sPoster = s.poster_path ? `https://image.tmdb.org/t/p/w185${s.poster_path}` : 'https://via.placeholder.com/100x150?text=Yok';
+                                        const airYear = s.air_date ? s.air_date.split('-')[0] : 'Tarih Yok';
+                                        const containerId = `episodes-${movieId}-${s.season_number}`;
+                                        return `
+                                            <div class="season-wrapper">
+                                                <div class="season-header" onclick="toggleSeason(${movieId}, ${s.season_number}, '${containerId}')">
+                                                    <img src="${sPoster}" class="season-poster" alt="${s.name}">
+                                                    <div class="season-info">
+                                                        <h4 class="season-title">${s.name} <i id="icon-${containerId}" class="fa-solid fa-chevron-down" style="font-size:14px; color:var(--text-muted);"></i></h4>
+                                                        <span class="season-meta"><i class="fa-solid fa-film"></i> ${s.episode_count} Bölüm | <i class="fa-regular fa-calendar"></i> ${airYear}</span>
+                                                    </div>
+                                                </div>
+                                                <div id="${containerId}" class="episodes-container"></div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            `;
+                        }
+                    }
                 }
 
                 const trProviders = providersData.results?.TR?.flatrate || [];
@@ -549,7 +606,7 @@
 
                 const trailer = videos.results?.find(v => v.site === 'YouTube' && v.type === 'Trailer');
                 const trailerHTML = trailer ? `
-                    <div class="modal-section-title">Fragman</div>
+                    <div class="modal-section-title" style="margin-top: 25px;">Fragman</div>
                     <a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" style="text-decoration:none;">
                         <div class="trailer-container"><img src="https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg" alt="Fragman"><i class="fa-brands fa-youtube play-icon"></i></div>
                     </a>
@@ -597,6 +654,9 @@
                                     </div>
                                 `).join('')}
                             </div>
+                            
+                            ${seasonsHTML} <!-- YENİ: Sezonlar listesi buraya eklendi -->
+                            
                             ${trailerHTML}
                         </div>
                     </div>
@@ -651,6 +711,71 @@
             document.getElementById(modalId).style.display = 'none';
             if(modalId === 'movieModal') document.body.classList.remove('modal-open');
             if(modalId === 'movieModal') document.getElementById('modalContent').innerHTML = ""; 
+        };
+
+        // YENİ: Sezon Bölümlerini Getir ve Aç/Kapat
+        window.toggleSeason = async (tvId, seasonNumber, elementId) => {
+            const container = document.getElementById(elementId);
+            const icon = document.getElementById(`icon-${elementId}`);
+            
+            // Açıksa Kapat
+            if (container.style.display === 'flex') {
+                container.style.display = 'none';
+                if(icon) icon.className = 'fa-solid fa-chevron-down';
+                return;
+            }
+            
+            // Kapalıysa Aç
+            container.style.display = 'flex';
+            if(icon) icon.className = 'fa-solid fa-chevron-up';
+            
+            // İçeriği daha önce yüklemediysek API'den çek (Tasarruf ve performans için)
+            if (container.innerHTML.trim() === '') {
+                container.innerHTML = '<div style="text-align:center; padding:15px;"><i class="fa-solid fa-spinner fa-spin" style="color:var(--primary-color);"></i> Yükleniyor...</div>';
+                try {
+                    const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${seasonNumber}?api_key=${API_KEY}&language=tr-TR`);
+                    const data = await res.json();
+                    
+                    if (data.episodes && data.episodes.length > 0) {
+                        let epsHTML = '';
+                        data.episodes.forEach(ep => {
+                            // LocalStorage'dan izlenme durumunu kontrol et
+                            const storageKey = `watched_${tvId}_S${seasonNumber}E${ep.episode_number}`;
+                            const isWatched = localStorage.getItem(storageKey) === 'true';
+                            const watchedClass = isWatched ? 'watched' : '';
+                            
+                            epsHTML += `
+                                <div class="episode-item">
+                                    <div class="episode-info-text">
+                                        <span class="episode-number">${ep.episode_number}.</span> 
+                                        <span>${ep.name || `Bölüm ${ep.episode_number}`}</span>
+                                    </div>
+                                    <div class="episode-toggle ${watchedClass}" onclick="toggleEpisodeWatched(${tvId}, ${seasonNumber}, ${ep.episode_number}, this)" title="İzlendi olarak işaretle"></div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = epsHTML;
+                    } else {
+                        container.innerHTML = '<div style="font-size:12px; color:var(--text-muted); padding:10px;">Bölüm bilgisi bulunamadı.</div>';
+                    }
+                } catch (e) {
+                    container.innerHTML = '<div style="font-size:12px; color:#e74c3c; padding:10px;">Bölümler yüklenemedi.</div>';
+                }
+            }
+        };
+
+        // YENİ: Bölüm İzlendi / İzlenmedi Yuvarlağı
+        window.toggleEpisodeWatched = (tvId, seasonNumber, epNumber, el) => {
+            const storageKey = `watched_${tvId}_S${seasonNumber}E${epNumber}`;
+            const isCurrentlyWatched = el.classList.contains('watched');
+            
+            if (isCurrentlyWatched) {
+                el.classList.remove('watched');
+                localStorage.setItem(storageKey, 'false'); // İzlenmedi olarak kaydet
+            } else {
+                el.classList.add('watched');
+                localStorage.setItem(storageKey, 'true'); // İzlendi olarak kaydet
+            }
         };
 
         // Klasör ve Kaydetme İşlemleri
