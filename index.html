@@ -57,6 +57,7 @@
         .btn-trend { background: #e74c3c; color: white; }
         .btn-auth { background: var(--text-main); color: var(--bg-dark); }
         .btn-theme { background: transparent; color: var(--primary-color); font-size: 20px; padding: 5px 10px; }
+        .btn:active { transform: scale(0.95); }
         .btn:hover { transform: translateY(-3px); }
 
         /* Arama & Filtre */
@@ -70,24 +71,30 @@
         select option { background-color: var(--bg-dark); color: var(--text-main); }
         .input-group select:focus, .input-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 15px rgba(1, 180, 228, 0.3); }
 
+        /* Sayfa Geçiş Animasyonu */
+        .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Kart Tasarımı */
         #results { width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
         .movie-card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid rgba(150,150,150,0.1); transition: 0.4s; position: relative; cursor: pointer; display: flex; flex-direction: column; }
-        .movie-card:hover { transform: translateY(-10px); border-color: var(--primary-color); box-shadow: 0 15px 30px rgba(1, 180, 228, 0.3); }
+        .movie-card:hover { transform: translateY(-10px); border-color: var(--primary-color); box-shadow: 0 15px 30px rgba(1, 180, 228, 0.3); z-index: 10; }
         .movie-poster-container { position: relative; height: 380px; overflow: hidden; }
         .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: 0.7s; }
         .movie-card:hover .movie-poster { transform: scale(1.1); }
         
-        .rating-badges { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 2; }
+        .rating-badges { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 4; }
         .badge { background: rgba(0,0,0,0.8); color: white; backdrop-filter: blur(5px); padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 11px; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(255,255,255,0.1); }
         .site-badge { color: var(--site-rating-color); border-color: var(--site-rating-color); }
-        .type-badge { position: absolute; top: 10px; left: 10px; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 2; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .type-badge { position: absolute; top: 10px; left: 10px; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 4; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         
-        /* Yakında Vizyonda Rozeti */
-        .upcoming-badge { position: absolute; top: 38px; left: 10px; background: var(--accent-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 2; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .year-badge { position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); color:white; backdrop-filter:blur(5px); padding:4px 8px; border-radius:8px; font-size:11px; font-weight:bold; z-index:2; border:1px solid rgba(255,255,255,0.1); }
+        .upcoming-badge { position: absolute; top: 38px; left: 10px; background: var(--accent-color); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; z-index: 4; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .year-badge { position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); color:white; backdrop-filter:blur(5px); padding:4px 8px; border-radius:8px; font-size:11px; font-weight:bold; z-index:4; border:1px solid rgba(255,255,255,0.1); }
 
-        .movie-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .movie-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; z-index: 4; background: inherit; }
         .movie-title { margin: 0 0 8px 0; font-size: 17px; font-weight: 600; color: var(--text-main); }
         .movie-meta-info { display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); margin-bottom: 10px; flex-wrap: wrap; }
         .meta-tag { background: rgba(150,150,150,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(150,150,150,0.2); color: var(--text-main); }
@@ -102,6 +109,7 @@
 
         /* MODAL VE YORUM SİSTEMİ */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(12px); padding: 20px; box-sizing: border-box; }
+        body.light-theme .modal-overlay { background: rgba(255,255,255,0.8); }
         .modal-container { background: var(--modal-bg); color: var(--text-main); width: 100%; max-width: 1000px; max-height: 90vh; border-radius: 28px; position: relative; overflow-y: auto; border: 1px solid rgba(150,150,150,0.2); animation: modalFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes modalFade { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: var(--text-main); cursor: pointer; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(150,150,150,0.2); border-radius: 50%; transition: 0.3s; }
@@ -168,7 +176,7 @@
         .btn-sm { padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; color: white; transition: 0.2s; }
         .bg-blue { background: var(--primary-color); } .bg-green { background: #27ae60; } .bg-red { background: var(--accent-color); } .bg-purple { background: #8e44ad; }
         .btn-full { grid-column: 1 / -1; margin-top: 5px; }
-        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; z-index: 5; position: relative; }
         
         #scrollTopBtn { opacity: 0; pointer-events: none; position: fixed; bottom: 30px; left: 30px; z-index: 999; background: var(--primary-color); color: white; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.4); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         #scrollTopBtn.visible { opacity: 1; pointer-events: auto; }
@@ -188,13 +196,13 @@
 
     <div id="dynamic-bg"></div>
 
-    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Yukarı Çık"><i class="fa-solid fa-arrow-up"></i></button>
+    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); window.playClickSound();" title="Yukarı Çık"><i class="fa-solid fa-arrow-up"></i></button>
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Film Detay Modalı -->
     <div id="movieModal" class="modal-overlay">
         <div class="modal-container">
-            <span class="modal-close" onclick="closeModal('movieModal')">&times;</span>
+            <span class="modal-close" onclick="window.closeModal('movieModal'); window.playClickSound();">&times;</span>
             <div id="modalContent"></div>
         </div>
     </div>
@@ -202,7 +210,7 @@
     <!-- Oyuncu Detay Modalı -->
     <div id="actorModal" class="modal-overlay" style="z-index: 1001;">
         <div class="modal-container" style="max-width: 800px;">
-            <span class="modal-close" onclick="closeModal('actorModal')">&times;</span>
+            <span class="modal-close" onclick="window.closeModal('actorModal'); window.playClickSound();">&times;</span>
             <div id="actorModalContent"></div>
         </div>
     </div>
@@ -210,7 +218,7 @@
     <!-- Klasör Seçme Modalı -->
     <div id="folderModal" class="modal-overlay" style="z-index: 1005;">
         <div class="modal-container" style="max-width: 400px; padding: 30px; text-align: center;">
-            <span class="modal-close" onclick="closeModal('folderModal')">&times;</span>
+            <span class="modal-close" onclick="window.closeModal('folderModal'); window.playClickSound();">&times;</span>
             <h3 style="color:var(--primary-color); margin-top:0;">Nereye Kaydedilsin?</h3>
             <p style="font-size:13px; color:var(--text-muted);">Mevcut bir klasör seç veya yeni oluştur.</p>
             <div class="folder-input-area" style="flex-direction: column;">
@@ -219,20 +227,20 @@
                     <hr style="flex:1; border-color:rgba(150,150,150,0.2);"> <span style="font-size:12px; color:var(--text-muted);">VEYA</span> <hr style="flex:1; border-color:rgba(150,150,150,0.2);">
                 </div>
                 <input type="text" id="newFolderName" placeholder="Yeni Klasör Adı (Örn: Favorilerim)">
-                <button class="btn bg-green" style="width:100%; justify-content:center; margin-top:15px;" onclick="confirmSaveToFolder()">Kaydet</button>
+                <button class="btn bg-green" style="width:100%; justify-content:center; margin-top:15px;" onclick="window.confirmSaveToFolder()">Kaydet</button>
             </div>
         </div>
     </div>
 
     <div class="header-bar">
-        <a href="#" class="logo" onclick="location.reload()">🎬 Ne İzlesem?</a>
+        <a href="#" class="logo" onclick="location.reload(); window.playClickSound();">🎬 Ne İzlesem?</a>
         <div class="user-nav">
             <span id="user-welcome" style="color:var(--primary-color); font-size:13px; font-weight:bold;"></span>
-            <button class="btn-theme" onclick="toggleTheme()" title="Temayı Değiştir"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
-            <button class="btn btn-trend" onclick="getTrending()"><i class="fa-solid fa-fire"></i> Trendler</button>
-            <button class="btn btn-dice" onclick="getRandomMovie()"><i class="fa-solid fa-dice"></i> Rastgele</button>
-            <button class="btn btn-list" onclick="showWatchlist()"><i class="fa-solid fa-bookmark"></i> Listem</button>
-            <button id="auth-btn" class="btn btn-auth" onclick="login()">Giriş Yap</button>
+            <button class="btn-theme" onclick="window.toggleTheme(); window.playClickSound();" title="Temayı Değiştir"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+            <button class="btn btn-trend" onclick="window.getTrending()"><i class="fa-solid fa-fire"></i> Trendler</button>
+            <button class="btn btn-dice" onclick="window.getRandomMovie()"><i class="fa-solid fa-dice"></i> Rastgele</button>
+            <button class="btn btn-list" onclick="window.showWatchlist()"><i class="fa-solid fa-bookmark"></i> Listem</button>
+            <button id="auth-btn" class="btn btn-auth" onclick="window.login()">Giriş Yap</button>
         </div>
     </div>
 
@@ -244,13 +252,13 @@
 
         <div class="input-row">
             <div class="input-group">
-                <select id="contentType" onchange="updateGenres()">
+                <select id="contentType" onchange="window.updateGenres(); window.playClickSound();">
                     <option value="movie">🎬 Filmler</option>
                     <option value="tv">📺 Diziler</option>
                 </select>
             </div>
             <div class="input-group">
-                <select id="genre">
+                <select id="genre" onchange="window.playClickSound();">
                     <option value="">Tüm Türler</option>
                     <option value="28">Aksiyon</option>
                     <option value="878">Bilim Kurgu</option>
@@ -263,7 +271,7 @@
                 <input type="number" id="year" placeholder="Yıl" value="2024">
             </div>
             <div class="input-group">
-                <select id="sortBy">
+                <select id="sortBy" onchange="window.playClickSound();">
                     <option value="popularity.desc">🔥 En Popüler</option>
                     <option value="primary_release_date.desc">✨ En Yeniler</option>
                     <option value="vote_average.desc">⭐ Puanı Yüksekler</option>
@@ -273,13 +281,14 @@
 
         <div style="margin-top: 10px;">
             <label style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:8px;">Min. IMDb Puanı: <span id="ratingValue" style="color:var(--primary-color); font-weight:bold;">7.0</span></label>
-            <input type="range" id="rating" min="0" max="10" step="0.5" value="7.0" style="width:100%; accent-color:var(--primary-color)" oninput="document.getElementById('ratingValue').innerText = this.value">
+            <input type="range" id="rating" min="0" max="10" step="0.5" value="7.0" style="width:100%; accent-color:var(--primary-color)" oninput="document.getElementById('ratingValue').innerText = this.value; window.playClickSound();">
         </div>
 
         <button class="btn bg-blue" style="width:100%; justify-content:center; margin-top:25px; padding:15px; border-radius:18px;" onclick="window.getMovies(true)">FİLM / DİZİ KEŞFET</button>
     </div>
 
-    <div id="results"></div>
+    <!-- Sonuçların animasyonla gelmesi için sarmalayıcı -->
+    <div id="results" class="fade-in-up"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -312,18 +321,46 @@
         let currentPage = 1;
         let isFetching = false;
 
+        // --- YENİ: PREMIUM SES EFEKTLERİ (Web Audio API) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        function playTone(freq, type, duration, vol = 0.1) {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch(e) { /* Hata olursa sessiz kal */ }
+        }
+
+        window.playClickSound = () => playTone(600, 'sine', 0.1, 0.05); // Yumuşak UI Pop
+        window.playSuccessSound = () => { 
+            playTone(400, 'sine', 0.1, 0.05); 
+            setTimeout(() => playTone(600, 'sine', 0.15, 0.05), 100); // İki tonlu tatmin edici başarı sesi
+        };
+
         // Tema Yönetimi
+        window.toggleTheme = () => {
+            const isLight = document.body.classList.toggle('light-theme');
+            document.getElementById('themeIcon').className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        };
+        
         const initTheme = () => {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             if (savedTheme === 'light') {
                 document.body.classList.add('light-theme');
                 document.getElementById('themeIcon').className = 'fa-solid fa-sun';
             }
-        };
-        window.toggleTheme = () => {
-            const isLight = document.body.classList.toggle('light-theme');
-            document.getElementById('themeIcon').className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
         };
         initTheme();
 
@@ -354,18 +391,27 @@
             if (user) {
                 welcome.innerText = `Hoş geldin, ${user.displayName.split(' ')[0]}`;
                 authBtn.innerHTML = `<i class="fa-solid fa-power-off"></i>`;
-                authBtn.onclick = () => { signOut(auth); showToast("Çıkış yapıldı", "success"); };
+                authBtn.onclick = () => { window.playClickSound(); signOut(auth); showToast("Çıkış yapıldı", "success"); };
                 await fetchUserFolders();
             } else {
                 welcome.innerText = "";
                 authBtn.innerHTML = `Giriş Yap`;
-                authBtn.onclick = login;
+                authBtn.onclick = () => { window.playClickSound(); window.login(); };
             }
         });
 
-        window.login = async () => { try { await signInWithPopup(auth, provider); showToast("Başarıyla giriş yapıldı!"); } catch (e) { showToast("Giriş iptal edildi", "error"); } };
+        window.login = async () => { try { await signInWithPopup(auth, provider); window.playSuccessSound(); showToast("Başarıyla giriş yapıldı!"); } catch (e) { showToast("Giriş iptal edildi", "error"); } };
+
+        // Geçiş Animasyonu Tetikleyici
+        function triggerPageTransition() {
+            const resDiv = document.getElementById('results');
+            resDiv.classList.remove('fade-in-up');
+            void resDiv.offsetWidth; // Reflow tetikle
+            resDiv.classList.add('fade-in-up');
+        }
 
         function renderSkeletons() {
+            triggerPageTransition();
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = `<h2 class="section-title">Yükleniyor...</h2>` + Array(8).fill(`
                 <div class="movie-card skeleton"><div class="movie-poster-container"></div><div class="movie-content"><div class="skeleton-text"></div><div class="skeleton-text full"></div></div></div>
@@ -398,6 +444,7 @@
         });
 
         window.getMovies = async (isNewSearch = true) => {
+            if(isNewSearch) window.playClickSound();
             if(isNewSearch) renderSkeletons();
             const mediaType = document.getElementById('contentType').value;
             const g = document.getElementById('genre').value;
@@ -408,25 +455,18 @@
             const genreQuery = g ? `&with_genres=${g}` : '';
             const yearQuery = mediaType === 'movie' ? `&primary_release_year=${y}` : `&first_air_date_year=${y}`;
             
-            // Sıralama parametresi ve minimum IMDb puanı dinamik olarak ekleniyor
             const baseUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
             isFetching = true;
 
             try {
                 let targetPage = 1;
-                
                 if (isNewSearch) {
-                    // İlk istekte filtrelere uyan toplam sayfa sayısını buluyoruz
                     const initRes = await fetch(`${baseUrl}&page=1`);
                     const initData = await initRes.json();
-                    
                     if(!initData.results || initData.results.length === 0) {
                         document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
-                        isFetching = false;
-                        return;
+                        isFetching = false; return;
                     }
-                    
-                    // Farklı içerik çıkması için ilk 10 sayfa arasından rastgele bir sayfa seçiyoruz
                     const maxPage = Math.min(initData.total_pages, 10);
                     targetPage = Math.floor(Math.random() * maxPage) + 1;
                 }
@@ -440,21 +480,17 @@
                     return;
                 }
                 
-                // Gelen sonuçları karıştırıp (shuffle) 12 tanesini alıyoruz
                 const shuffledResults = data.results.sort(() => 0.5 - Math.random());
                 const mappedData = shuffledResults.slice(0, 12).map(item => ({...item, media_type: mediaType}));
-                
-                // Sonsuz kaydırmayı devre dışı bırakıyoruz
                 currentApiUrl = ""; 
-                
                 renderMoviesToDOM(mappedData, "Keşif Listesi 🍿");
             } catch (err) { showToast("Bağlantı hatası", "error"); isFetching = false; }
         };
 
-        // Trendleri (Vizyondakiler) Getirme Fonksiyonu
         window.getTrending = async () => {
+            window.playClickSound();
             renderSkeletons();
-            currentApiUrl = ""; // Sonsuz kaydırmayı kapatıyoruz ki çok aşağı gitmesin
+            currentApiUrl = ""; 
             isFetching = true;
             try {
                 const [movieRes, tvRes] = await Promise.all([
@@ -464,7 +500,6 @@
                 const movieData = await movieRes.json();
                 const tvData = await tvRes.json();
                 
-                // Sadece ilk 4 film ve ilk 4 diziyi alıyoruz (sayfa düzenine tam oturması için)
                 const topMovies = movieData.results.slice(0, 4).map(m => ({...m, media_type: 'movie'}));
                 const topTvShows = tvData.results.slice(0, 4).map(t => ({...t, media_type: 'tv'}));
                 
@@ -485,6 +520,7 @@
         };
 
         window.renderMoviesToDOM = async (movies, title, isLibrary = false, collectionId = null) => {
+            triggerPageTransition();
             currentDisplayedMovies = movies;
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = title ? `<h2 class="section-title">${title}</h2>` : '';
@@ -510,7 +546,6 @@
                 const ratingValue = m.vote_average || 0;
                 let ratingColor = ratingValue >= 8 ? '#27ae60' : (ratingValue >= 6 ? '#f39c12' : '#e74c3c');
                 
-                // Çıkış tarihi kontrolü ve Yakında Rozeti oluşturma
                 const releaseDateStr = m.release_date || m.first_air_date || '';
                 const isUpcoming = releaseDateStr && new Date(releaseDateStr) > new Date();
                 const upcomingBadgeHTML = isUpcoming ? `<div class="upcoming-badge">🔜 YAKINDA</div>` : '';
@@ -526,7 +561,7 @@
 
                 const card = document.createElement('div');
                 card.className = 'movie-card';
-                card.onclick = () => window.openModal(m.id, mediaType);
+                card.onclick = () => { window.playClickSound(); window.openModal(m.id, mediaType); };
 
                 card.innerHTML = `
                     <div class="movie-poster-container">
@@ -545,11 +580,11 @@
                         <p class="movie-overview">${shortOverview}</p>
                         <div class="action-buttons">
                             ${isLibrary ? `
-                                <button class="btn-sm bg-green" onclick="event.stopPropagation(); toggleWatched(${m.id}, ${m.watched})">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
-                                <button class="btn-sm bg-red btn-full" onclick="event.stopPropagation(); removeFromWatchlist(${m.id})">Kaldır</button>
+                                <button class="btn-sm bg-green" onclick="event.stopPropagation(); window.toggleWatched(${m.id}, ${m.watched})">${m.watched ? 'İzlemedim' : 'İzledim'}</button>
+                                <button class="btn-sm bg-red btn-full" onclick="event.stopPropagation(); window.removeFromWatchlist(${m.id})">Kaldır</button>
                             ` : `
-                                <button class="btn-sm bg-purple" onclick="event.stopPropagation(); openFolderModal(${m.id}, '${mediaType}')">Klasöre Ekle</button>
-                                <button class="btn-sm bg-blue" onclick="event.stopPropagation(); getSimilarMovies(${m.id}, '${itemTitle.replace(/'/g, "\\'")}', '${mediaType}')">Benzerler</button>
+                                <button class="btn-sm bg-purple" onclick="event.stopPropagation(); window.openFolderModal(${m.id}, '${mediaType}')">Klasöre Ekle</button>
+                                <button class="btn-sm bg-blue" onclick="event.stopPropagation(); window.getSimilarMovies(${m.id}, '${itemTitle.replace(/'/g, "\\'")}', '${mediaType}')">Benzerler</button>
                             `}
                         </div>
                     </div>
@@ -584,7 +619,6 @@
                 const cast = credits.cast ? credits.cast.slice(0, 8) : [];
                 const title = movie.title || movie.name;
                 
-                // Çıkış tarihi kontrolü ve modal içi Yakında etiketi
                 const releaseDateStr = movie.release_date || movie.first_air_date || '';
                 const isUpcoming = releaseDateStr && new Date(releaseDateStr) > new Date();
                 const upcomingLabelHTML = isUpcoming ? `<span style="background:var(--accent-color); color:white; padding:4px 8px; border-radius:8px; font-size:12px; font-weight:bold; margin-left:10px; vertical-align:middle; display:inline-block;">🔜 Yakında</span>` : '';
@@ -593,7 +627,7 @@
                 const runtime = movie.runtime ? `${movie.runtime} dk` : (movie.episode_run_time && movie.episode_run_time.length > 0 ? `${movie.episode_run_time[0]} dk/bölüm` : '?');
 
                 let extraMetaHTML = '';
-                let seasonsHTML = ''; // YENİ: Sezonlar için HTML değişkeni
+                let seasonsHTML = ''; 
                 
                 if (mediaType === 'tv') {
                     const seasons = movie.number_of_seasons ? `${movie.number_of_seasons} Sezon` : '';
@@ -601,11 +635,8 @@
                     const status = movie.status === 'Ended' ? 'Final Yaptı' : (movie.status === 'Returning Series' ? 'Devam Ediyor' : 'Belirsiz');
                     extraMetaHTML = `<span><i class="fa-solid fa-layer-group"></i> ${seasons} (${episodes})</span><span><i class="fa-solid fa-circle-info"></i> ${status}</span>`;
                     
-                    // YENİ: Sezonları listeleme
                     if (movie.seasons && movie.seasons.length > 0) {
-                        // "Specials" (Özel Bölümler) olanları filtreleyebiliriz veya en sona atabiliriz. Genelde sezon 0 olurlar.
                         const validSeasons = movie.seasons.filter(s => s.season_number > 0);
-                        
                         if (validSeasons.length > 0) {
                             seasonsHTML = `
                                 <div class="modal-section-title" style="margin-top: 25px;">Sezonlar & Bölümler</div>
@@ -616,7 +647,7 @@
                                         const containerId = `episodes-${movieId}-${s.season_number}`;
                                         return `
                                             <div class="season-wrapper">
-                                                <div class="season-header" onclick="toggleSeason(${movieId}, ${s.season_number}, '${containerId}')">
+                                                <div class="season-header" onclick="window.playClickSound(); window.toggleSeason(${movieId}, ${s.season_number}, '${containerId}')">
                                                     <img src="${sPoster}" class="season-poster" alt="${s.name}">
                                                     <div class="season-info">
                                                         <h4 class="season-title">${s.name} <i id="icon-${containerId}" class="fa-solid fa-chevron-down" style="font-size:14px; color:var(--text-muted);"></i></h4>
@@ -687,30 +718,28 @@
                             <div class="modal-section-title">Oyuncular (Tıklanabilir)</div>
                             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:10px;">
                                 ${cast.map(c => `
-                                    <div class="cast-card" onclick="openActorModal(${c.id})">
+                                    <div class="cast-card" onclick="window.playClickSound(); window.openActorModal(${c.id})">
                                         <img src="${c.profile_path ? 'https://image.tmdb.org/t/p/w185'+c.profile_path : 'https://via.placeholder.com/100'}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
                                         <span style="font-size:10px; display:block; margin-top:5px; line-height:1.2;">${c.name}</span>
                                     </div>
                                 `).join('')}
                             </div>
                             
-                            ${seasonsHTML} <!-- YENİ: Sezonlar listesi buraya eklendi -->
+                            ${seasonsHTML}
                             
                             ${trailerHTML}
                         </div>
                     </div>
                 `;
                 
-                // Modal açıldıktan sonra progress barları güncelle
                 if (mediaType === 'tv' && movie.seasons) {
                     movie.seasons.filter(s => s.season_number > 0).forEach(s => {
-                        updateSeasonProgress(movieId, s.season_number, s.episode_count);
+                        window.updateSeasonProgress(movieId, s.season_number, s.episode_count);
                     });
                 }
             } catch (err) { content.innerHTML = "<p>Yüklenemedi.</p>"; }
         };
 
-        // Oyuncu (Aktör) Detay Modalı
         window.openActorModal = async (actorId) => {
             const modal = document.getElementById('actorModal');
             const content = document.getElementById('actorModalContent');
@@ -728,7 +757,6 @@
                 const profileImg = actor.profile_path ? `https://image.tmdb.org/t/p/w300${actor.profile_path}` : 'https://via.placeholder.com/300x450?text=Foto+Yok';
                 const age = actor.birthday ? `(${new Date().getFullYear() - parseInt(actor.birthday.split('-')[0])} yaşında)` : '';
                 
-                // En popüler 6 filmini/dizisini al
                 const topWorks = credits.cast.sort((a,b) => b.popularity - a.popularity).slice(0, 6);
 
                 content.innerHTML = `
@@ -741,7 +769,7 @@
                             <h4 style="margin:15px 0 10px 0; border-bottom:1px solid rgba(150,150,150,0.2); padding-bottom:5px;">Popüler Yapımları</h4>
                             <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;">
                                 ${topWorks.map(w => `
-                                    <div style="width:80px; flex-shrink:0; cursor:pointer;" onclick="closeModal('actorModal'); openModal(${w.id}, '${w.media_type}')">
+                                    <div style="width:80px; flex-shrink:0; cursor:pointer;" onclick="window.closeModal('actorModal'); window.playClickSound(); window.openModal(${w.id}, '${w.media_type}')">
                                         <img src="${w.poster_path ? 'https://image.tmdb.org/t/p/w185'+w.poster_path : 'https://via.placeholder.com/100'}" style="width:100%; border-radius:8px;">
                                         <span style="font-size:10px; display:block; text-align:center; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${w.title || w.name}</span>
                                     </div>
@@ -753,13 +781,6 @@
             } catch(e) { content.innerHTML = "Hata oluştu."; }
         };
 
-        window.closeModal = (modalId) => {
-            document.getElementById(modalId).style.display = 'none';
-            if(modalId === 'movieModal') document.body.classList.remove('modal-open');
-            if(modalId === 'movieModal') document.getElementById('modalContent').innerHTML = ""; 
-        };
-        
-        // YENİ: Sezon ilerleme çubuğunu güncelle
         window.updateSeasonProgress = (tvId, seasonNumber, totalEpisodes) => {
             let watchedCount = 0;
             for (let i = 1; i <= totalEpisodes; i++) {
@@ -774,23 +795,19 @@
             }
         };
 
-        // YENİ: Sezon Bölümlerini Getir ve Aç/Kapat
         window.toggleSeason = async (tvId, seasonNumber, elementId) => {
             const container = document.getElementById(elementId);
             const icon = document.getElementById(`icon-${elementId}`);
             
-            // Açıksa Kapat
             if (container.style.display === 'flex') {
                 container.style.display = 'none';
                 if(icon) icon.className = 'fa-solid fa-chevron-down';
                 return;
             }
             
-            // Kapalıysa Aç
             container.style.display = 'flex';
             if(icon) icon.className = 'fa-solid fa-chevron-up';
             
-            // İçeriği daha önce yüklemediysek API'den çek (Tasarruf ve performans için)
             if (container.innerHTML.trim() === '') {
                 container.innerHTML = '<div style="text-align:center; padding:15px;"><i class="fa-solid fa-spinner fa-spin" style="color:var(--primary-color);"></i> Yükleniyor...</div>';
                 try {
@@ -800,7 +817,6 @@
                     if (data.episodes && data.episodes.length > 0) {
                         let epsHTML = '';
                         data.episodes.forEach(ep => {
-                            // LocalStorage'dan izlenme durumunu kontrol et
                             const storageKey = `watched_${tvId}_S${seasonNumber}E${ep.episode_number}`;
                             const isWatched = localStorage.getItem(storageKey) === 'true';
                             const watchedClass = isWatched ? 'watched' : '';
@@ -811,7 +827,7 @@
                                         <span class="episode-number">${ep.episode_number}.</span> 
                                         <span>${ep.name || `Bölüm ${ep.episode_number}`}</span>
                                     </div>
-                                    <div class="episode-toggle ${watchedClass}" onclick="toggleEpisodeWatched(${tvId}, ${seasonNumber}, ${ep.episode_number}, ${data.episodes.length}, this)" title="İzlendi olarak işaretle">
+                                    <div class="episode-toggle ${watchedClass}" onclick="window.toggleEpisodeWatched(${tvId}, ${seasonNumber}, ${ep.episode_number}, ${data.episodes.length}, this)" title="İzlendi olarak işaretle">
                                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M5 13L9 17L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
@@ -829,27 +845,26 @@
             }
         };
 
-        // YENİ: Bölüm İzlendi / İzlenmedi Yuvarlağı
         window.toggleEpisodeWatched = (tvId, seasonNumber, epNumber, totalEpisodes, el) => {
             const storageKey = `watched_${tvId}_S${seasonNumber}E${epNumber}`;
             const itemDiv = document.getElementById(`ep-item-${tvId}-${seasonNumber}-${epNumber}`);
             const isCurrentlyWatched = el.classList.contains('watched');
             
             if (isCurrentlyWatched) {
+                window.playClickSound(); // Geri alırken normal ses
                 el.classList.remove('watched');
                 if (itemDiv) itemDiv.classList.remove('watched');
-                localStorage.setItem(storageKey, 'false'); // İzlenmedi olarak kaydet
+                localStorage.setItem(storageKey, 'false');
             } else {
+                window.playSuccessSound(); // İşaretlerken tatmin edici başarı sesi
                 el.classList.add('watched');
                 if (itemDiv) itemDiv.classList.add('watched');
-                localStorage.setItem(storageKey, 'true'); // İzlendi olarak kaydet
+                localStorage.setItem(storageKey, 'true');
             }
             
-            // Progress barı güncelle
-            updateSeasonProgress(tvId, seasonNumber, totalEpisodes);
+            window.updateSeasonProgress(tvId, seasonNumber, totalEpisodes);
         };
 
-        // Klasör ve Kaydetme İşlemleri
         async function fetchUserFolders() {
             if(!currentUser) return;
             try {
@@ -861,6 +876,7 @@
         }
 
         window.openFolderModal = (movieId, mediaType) => {
+            window.playClickSound();
             if (!currentUser) return showToast("Giriş yapmalısın!", "error");
             itemToSave = currentDisplayedMovies.find(m => m.id === movieId);
             if(itemToSave) itemToSave.media_type = mediaType;
@@ -889,13 +905,14 @@
                 if (!snap.empty) { showToast("Bu klasörde zaten var!", "error"); return; }
 
                 await addDoc(colRef, { ...itemToSave, folder: targetFolder, watched: false, addedAt: new Date() });
-                closeModal('folderModal');
+                window.closeModal('folderModal');
+                window.playSuccessSound(); // Başarılı kayıt efekti
                 showToast(`"${targetFolder}" klasörüne eklendi!`, "success");
             } catch(e) { showToast("Eklenemedi", "error"); }
         };
 
-        // Gelişmiş İstatistikli Listem (Dashboard)
         window.showWatchlist = async (filterFolder = "Tümü") => {
+            window.playClickSound();
             if (!currentUser) return showToast("Giriş yapmalısın!", "error");
             document.getElementById('searchSection').style.display = 'none';
             renderSkeletons(); currentApiUrl = ""; currentDisplayedMovies = [];
@@ -905,18 +922,16 @@
             
             const resultsDiv = document.getElementById('results');
             
-            // İstatistik Hesaplama
             const totalItems = list.length;
             const watchedItems = list.filter(i => i.watched).length;
             const moviesCount = list.filter(i => i.media_type === 'movie').length;
             const tvCount = list.filter(i => i.media_type === 'tv').length;
-            const estimatedHours = (moviesCount * 2) + (tvCount * 15); // Ortalama süre
+            const estimatedHours = (moviesCount * 2) + (tvCount * 15); 
 
-            // Klasör Sekmeleri
             const allFolders = ["Tümü", ...new Set(list.map(i => i.folder || "Kütüphanem"))];
             const tabsHTML = `
                 <div class="collection-tabs" style="grid-column: 1 / -1;">
-                    ${allFolders.map(f => `<div class="collection-tab ${filterFolder === f ? 'active' : ''}" onclick="showWatchlist('${f}')">${f}</div>`).join('')}
+                    ${allFolders.map(f => `<div class="collection-tab ${filterFolder === f ? 'active' : ''}" onclick="window.showWatchlist('${f}')">${f}</div>`).join('')}
                 </div>
             `;
 
@@ -934,8 +949,8 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding: 0 10px; grid-column: 1 / -1; margin-bottom: 10px; flex-wrap:wrap; gap:10px;">
                     <h2 style="margin:0; color:var(--primary-color); font-size:24px;">Arşivim 📚</h2>
                     <div>
-                        <button class="btn bg-blue" onclick="navigator.clipboard.writeText('${shareLink}'); showToast('Link kopyalandı! Arkadaşlarına gönderebilirsin.');" style="display:inline-flex; font-size:12px; margin-right:5px;"><i class="fa-solid fa-share-nodes"></i> Paylaş</button>
-                        ${list.length > 0 ? `<button class="btn bg-green" onclick="exportToExcel()" style="display:inline-flex; font-size:12px;"><i class="fa-solid fa-file-excel"></i> İndir</button>` : ''}
+                        <button class="btn bg-blue" onclick="window.playClickSound(); navigator.clipboard.writeText('${shareLink}'); showToast('Link kopyalandı! Arkadaşlarına gönderebilirsin.');" style="display:inline-flex; font-size:12px; margin-right:5px;"><i class="fa-solid fa-share-nodes"></i> Paylaş</button>
+                        ${list.length > 0 ? `<button class="btn bg-green" onclick="window.playClickSound(); window.exportToExcel()" style="display:inline-flex; font-size:12px;"><i class="fa-solid fa-file-excel"></i> İndir</button>` : ''}
                     </div>
                 </div>
                 ${tabsHTML}
@@ -944,7 +959,6 @@
             
             resultsDiv.innerHTML = headerHTML;
 
-            // Filtreleme
             if(filterFolder !== "Tümü") list = list.filter(i => (i.folder || "Kütüphanem") === filterFolder);
 
             if (list.length === 0) {
@@ -969,6 +983,7 @@
         };
 
         window.removeFromWatchlist = async (movieId) => {
+            window.playClickSound();
             const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
             const snap = await getDocs(q);
             snap.forEach(async (d) => await deleteDoc(doc(db, "users", currentUser.uid, "watchlist", d.id)));
@@ -978,6 +993,7 @@
         };
 
         window.toggleWatched = async (movieId, status) => {
+            if(!status) window.playSuccessSound(); else window.playClickSound(); // İzlendi yaparken başarı sesi, izlenmedi yaparken normal ses
             const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
             const snap = await getDocs(q);
             snap.forEach(async (d) => { await updateDoc(doc(db, "users", currentUser.uid, "watchlist", d.id), { watched: !status }); });
@@ -1001,6 +1017,7 @@
         };
 
         window.getSimilarMovies = async (id, name, mediaType) => {
+            window.playClickSound();
             renderSkeletons(); currentApiUrl = "";
             const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/similar?api_key=${API_KEY}&language=tr-TR`);
             const data = await res.json();
@@ -1027,6 +1044,7 @@
         };
 
         window.getRandomMovie = async () => {
+            window.playClickSound();
             renderSkeletons();
             const type = Math.random() > 0.5 ? 'movie' : 'tv';
             try {
@@ -1037,6 +1055,12 @@
                 const item = data.results[Math.floor(Math.random() * data.results.length)]; item.media_type = type;
                 renderMoviesToDOM([item], "🎲 Gecenin Şanslısı");
             } catch (e) {}
+        };
+        
+        window.closeModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'none';
+            if(modalId === 'movieModal') document.body.classList.remove('modal-open');
+            if(modalId === 'movieModal') document.getElementById('modalContent').innerHTML = ""; 
         };
     </script>
 </body>
