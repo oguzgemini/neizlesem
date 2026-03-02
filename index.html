@@ -130,10 +130,21 @@
         .season-poster { width: 50px; height: 75px; border-radius: 8px; object-fit: cover; }
         .season-info { flex: 1; }
         .season-title { margin: 0 0 5px 0; font-size: 15px; font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; padding-right: 10px; }
-        .season-meta { font-size: 12px; color: var(--text-muted); }
+        .season-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 10px;}
+
+        /* YENİ: Sezon Tamamlandı Stilleri */
+        .season-wrapper.season-completed { border-color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+        body.light-theme .season-wrapper.season-completed { background: rgba(39, 174, 96, 0.15); border-color: #27ae60; }
+        .season-completed-icon { display: none; color: #27ae60; font-size: 16px; margin-left: 8px; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .season-wrapper.season-completed .season-completed-icon { display: inline-flex; align-items: center; }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
         
         /* Progress Bar */
-        .progress-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; flex-grow: 1;}
         .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 0.5s ease-in-out; }
 
         .episodes-container { display: none; padding: 0 10px 10px 10px; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.1); }
@@ -159,6 +170,11 @@
         @keyframes drawCheck {
             to { stroke-dashoffset: 0; }
         }
+        
+        .season-actions { display: flex; align-items: center; gap: 10px; }
+        .mark-season-btn { font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--primary-color); background: transparent; color: var(--primary-color); cursor: pointer; transition: 0.2s; white-space: nowrap;}
+        .mark-season-btn:hover { background: var(--primary-color); color: white; }
+        .season-wrapper.season-completed .mark-season-btn { display: none; }
 
         .stats-panel { background: linear-gradient(135deg, rgba(142, 68, 173, 0.2), rgba(52, 152, 219, 0.2)); border: 1px solid rgba(142, 68, 173, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; box-sizing: border-box; }
         .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; text-align: center; }
@@ -645,13 +661,23 @@
                                         const sPoster = s.poster_path ? `https://image.tmdb.org/t/p/w185${s.poster_path}` : 'https://via.placeholder.com/100x150?text=Yok';
                                         const airYear = s.air_date ? s.air_date.split('-')[0] : 'Tarih Yok';
                                         const containerId = `episodes-${movieId}-${s.season_number}`;
+                                        const wrapperId = `season-wrapper-${movieId}-${s.season_number}`;
                                         return `
-                                            <div class="season-wrapper">
+                                            <div id="${wrapperId}" class="season-wrapper">
                                                 <div class="season-header" onclick="window.playClickSound(); window.toggleSeason(${movieId}, ${s.season_number}, '${containerId}')">
                                                     <img src="${sPoster}" class="season-poster" alt="${s.name}">
                                                     <div class="season-info">
-                                                        <h4 class="season-title">${s.name} <i id="icon-${containerId}" class="fa-solid fa-chevron-down" style="font-size:14px; color:var(--text-muted);"></i></h4>
-                                                        <span class="season-meta"><i class="fa-solid fa-film"></i> ${s.episode_count} Bölüm | <i class="fa-regular fa-calendar"></i> ${airYear}</span>
+                                                        <div class="season-actions" style="display:flex; justify-content:space-between; align-items:center; padding-right:10px;">
+                                                            <h4 class="season-title" style="margin:0; display:flex; align-items:center;">
+                                                                ${s.name} 
+                                                                <span class="season-completed-icon" title="Sezon Tamamlandı"><i class="fa-solid fa-circle-check"></i></span>
+                                                            </h4>
+                                                            <div style="display:flex; align-items:center; gap:10px;">
+                                                                <button class="mark-season-btn" onclick="event.stopPropagation(); window.markWholeSeasonWatched(${movieId}, ${s.season_number}, ${s.episode_count});">Tümünü İzledim</button>
+                                                                <i id="icon-${containerId}" class="fa-solid fa-chevron-down" style="font-size:14px; color:var(--text-muted);"></i>
+                                                            </div>
+                                                        </div>
+                                                        <span class="season-meta" style="margin-top:5px; display:flex; gap:10px;"><i class="fa-solid fa-film"></i> ${s.episode_count} Bölüm | <i class="fa-regular fa-calendar"></i> ${airYear}</span>
                                                         <div class="progress-bar-bg">
                                                             <div class="progress-bar-fill" id="progress-${movieId}-${s.season_number}"></div>
                                                         </div>
@@ -793,6 +819,41 @@
                 const percentage = totalEpisodes > 0 ? (watchedCount / totalEpisodes) * 100 : 0;
                 progressFill.style.width = `${percentage}%`;
             }
+            
+            // YENİ: Tüm sezon izlendi kontrolü
+            const seasonWrapper = document.getElementById(`season-wrapper-${tvId}-${seasonNumber}`);
+            if (seasonWrapper) {
+                if (totalEpisodes > 0 && watchedCount === totalEpisodes) {
+                    seasonWrapper.classList.add('season-completed');
+                } else {
+                    seasonWrapper.classList.remove('season-completed');
+                }
+            }
+        };
+
+        // YENİ: Tüm sezonu izlendi olarak işaretleme fonksiyonu
+        window.markWholeSeasonWatched = async (tvId, seasonNumber, totalEpisodes) => {
+            window.playSuccessSound(); // Başarı sesi
+            
+            // Tüm bölümleri local storage'a izlendi olarak kaydet
+            for (let i = 1; i <= totalEpisodes; i++) {
+                localStorage.setItem(`watched_${tvId}_S${seasonNumber}E${i}`, 'true');
+            }
+            
+            // Progress barı ve sezon wrapper'ı hemen güncelle
+            window.updateSeasonProgress(tvId, seasonNumber, totalEpisodes);
+            
+            // Eğer sezon açıksa (bölümler listeleniyorsa) açık olan bölümlerin de UI'ını güncelle
+            const container = document.getElementById(`episodes-${tvId}-${seasonNumber}`);
+            if (container && container.style.display === 'flex') {
+                const episodeItems = container.querySelectorAll('.episode-item');
+                const toggleBtns = container.querySelectorAll('.episode-toggle');
+                
+                episodeItems.forEach(item => item.classList.add('watched'));
+                toggleBtns.forEach(btn => btn.classList.add('watched'));
+            }
+            
+            showToast(`${seasonNumber}. Sezon tümüyle izlendi!`, "success");
         };
 
         window.toggleSeason = async (tvId, seasonNumber, elementId) => {
