@@ -37,6 +37,7 @@
         body.light-theme .episode-item { background: rgba(255,255,255,0.8); border-color: rgba(0,0,0,0.05); }
         body.light-theme .stat-box { background: rgba(255,255,255,0.5); }
         body.light-theme .modal-overlay { background: rgba(255,255,255,0.8); }
+        body.light-theme .progress-bar-bg { background: rgba(0,0,0,0.1); }
 
         #dynamic-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-dark); background-size: cover; background-position: center; filter: blur(25px) brightness(0.2); z-index: -1; transition: background-image 1.2s ease, background-color 0.5s ease; }
         body.light-theme #dynamic-bg { filter: blur(30px) brightness(0.85); opacity: 0.6; }
@@ -113,26 +114,43 @@
         .cast-card { text-align: center; cursor: pointer; transition: 0.3s; padding: 5px; border-radius: 10px; }
         .cast-card:hover { background: rgba(1, 180, 228, 0.1); transform: translateY(-5px); }
 
-        /* YENİ: Sezon Kartları ve Bölümler */
+        /* Sezon Kartları ve Bölümler */
         .season-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; padding-right: 5px; }
         .season-wrapper { margin-bottom: 5px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; transition: 0.3s; }
-        .season-header { display: flex; align-items: center; gap: 15px; padding: 10px; cursor: pointer; transition: 0.3s; }
+        .season-header { display: flex; align-items: center; gap: 15px; padding: 10px; cursor: pointer; transition: 0.3s; position: relative; }
         .season-header:hover { background: rgba(1, 180, 228, 0.1); }
         .season-poster { width: 50px; height: 75px; border-radius: 8px; object-fit: cover; }
         .season-info { flex: 1; }
         .season-title { margin: 0 0 5px 0; font-size: 15px; font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; padding-right: 10px; }
         .season-meta { font-size: 12px; color: var(--text-muted); }
         
+        /* Progress Bar */
+        .progress-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 0.5s ease-in-out; }
+
         .episodes-container { display: none; padding: 0 10px 10px 10px; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.1); }
-        .episode-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 13px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .episode-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 13px; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
         .episode-item:hover { background: rgba(255,255,255,0.1); border-color: var(--primary-color); }
-        .episode-info-text { display: flex; gap: 10px; align-items: center; flex: 1; }
+        
+        /* İzlendi Stili */
+        .episode-item.watched { opacity: 0.5; background: rgba(39, 174, 96, 0.1); border-color: rgba(39, 174, 96, 0.3); }
+        .episode-info-text { display: flex; gap: 10px; align-items: center; flex: 1; transition: 0.3s; }
+        .episode-item.watched .episode-info-text span:not(.episode-number) { text-decoration: line-through; }
         .episode-number { font-weight: bold; color: var(--primary-color); min-width: 25px; }
         
-        .episode-toggle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-muted); cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .episode-toggle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-muted); cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
         .episode-toggle:hover { border-color: var(--primary-color); transform: scale(1.1); }
+        
+        /* Çizilen Tik Animasyonu */
+        .episode-toggle svg { width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s; }
         .episode-toggle.watched { background-color: #27ae60; border-color: #27ae60; }
-        .episode-toggle.watched::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 12px; }
+        .episode-toggle.watched svg { opacity: 1; }
+        .episode-toggle svg path { stroke-dasharray: 20; stroke-dashoffset: 20; }
+        .episode-toggle.watched svg path { animation: drawCheck 0.4s forwards ease-out; }
+        
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
 
         .stats-panel { background: linear-gradient(135deg, rgba(142, 68, 173, 0.2), rgba(52, 152, 219, 0.2)); border: 1px solid rgba(142, 68, 173, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; box-sizing: border-box; }
         .stat-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; text-align: center; }
@@ -585,6 +603,9 @@
                                                     <div class="season-info">
                                                         <h4 class="season-title">${s.name} <i id="icon-${containerId}" class="fa-solid fa-chevron-down" style="font-size:14px; color:var(--text-muted);"></i></h4>
                                                         <span class="season-meta"><i class="fa-solid fa-film"></i> ${s.episode_count} Bölüm | <i class="fa-regular fa-calendar"></i> ${airYear}</span>
+                                                        <div class="progress-bar-bg">
+                                                            <div class="progress-bar-fill" id="progress-${movieId}-${s.season_number}"></div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div id="${containerId}" class="episodes-container"></div>
@@ -661,6 +682,13 @@
                         </div>
                     </div>
                 `;
+                
+                // Modal açıldıktan sonra progress barları güncelle
+                if (mediaType === 'tv' && movie.seasons) {
+                    movie.seasons.filter(s => s.season_number > 0).forEach(s => {
+                        updateSeasonProgress(movieId, s.season_number, s.episode_count);
+                    });
+                }
             } catch (err) { content.innerHTML = "<p>Yüklenemedi.</p>"; }
         };
 
@@ -712,6 +740,21 @@
             if(modalId === 'movieModal') document.body.classList.remove('modal-open');
             if(modalId === 'movieModal') document.getElementById('modalContent').innerHTML = ""; 
         };
+        
+        // YENİ: Sezon ilerleme çubuğunu güncelle
+        window.updateSeasonProgress = (tvId, seasonNumber, totalEpisodes) => {
+            let watchedCount = 0;
+            for (let i = 1; i <= totalEpisodes; i++) {
+                if (localStorage.getItem(`watched_${tvId}_S${seasonNumber}E${i}`) === 'true') {
+                    watchedCount++;
+                }
+            }
+            const progressFill = document.getElementById(`progress-${tvId}-${seasonNumber}`);
+            if (progressFill) {
+                const percentage = totalEpisodes > 0 ? (watchedCount / totalEpisodes) * 100 : 0;
+                progressFill.style.width = `${percentage}%`;
+            }
+        };
 
         // YENİ: Sezon Bölümlerini Getir ve Aç/Kapat
         window.toggleSeason = async (tvId, seasonNumber, elementId) => {
@@ -745,12 +788,16 @@
                             const watchedClass = isWatched ? 'watched' : '';
                             
                             epsHTML += `
-                                <div class="episode-item">
+                                <div id="ep-item-${tvId}-${seasonNumber}-${ep.episode_number}" class="episode-item ${watchedClass}">
                                     <div class="episode-info-text">
                                         <span class="episode-number">${ep.episode_number}.</span> 
                                         <span>${ep.name || `Bölüm ${ep.episode_number}`}</span>
                                     </div>
-                                    <div class="episode-toggle ${watchedClass}" onclick="toggleEpisodeWatched(${tvId}, ${seasonNumber}, ${ep.episode_number}, this)" title="İzlendi olarak işaretle"></div>
+                                    <div class="episode-toggle ${watchedClass}" onclick="toggleEpisodeWatched(${tvId}, ${seasonNumber}, ${ep.episode_number}, ${data.episodes.length}, this)" title="İzlendi olarak işaretle">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 13L9 17L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                 </div>
                             `;
                         });
@@ -765,17 +812,23 @@
         };
 
         // YENİ: Bölüm İzlendi / İzlenmedi Yuvarlağı
-        window.toggleEpisodeWatched = (tvId, seasonNumber, epNumber, el) => {
+        window.toggleEpisodeWatched = (tvId, seasonNumber, epNumber, totalEpisodes, el) => {
             const storageKey = `watched_${tvId}_S${seasonNumber}E${epNumber}`;
+            const itemDiv = document.getElementById(`ep-item-${tvId}-${seasonNumber}-${epNumber}`);
             const isCurrentlyWatched = el.classList.contains('watched');
             
             if (isCurrentlyWatched) {
                 el.classList.remove('watched');
+                if (itemDiv) itemDiv.classList.remove('watched');
                 localStorage.setItem(storageKey, 'false'); // İzlenmedi olarak kaydet
             } else {
                 el.classList.add('watched');
+                if (itemDiv) itemDiv.classList.add('watched');
                 localStorage.setItem(storageKey, 'true'); // İzlendi olarak kaydet
             }
+            
+            // Progress barı güncelle
+            updateSeasonProgress(tvId, seasonNumber, totalEpisodes);
         };
 
         // Klasör ve Kaydetme İşlemleri
