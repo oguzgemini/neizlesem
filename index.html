@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Ne İzlesem? | Premium AI Kütüphanem</title>
+    <title>Ne İzlesem?</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -408,25 +408,43 @@
             const genreQuery = g ? `&with_genres=${g}` : '';
             const yearQuery = mediaType === 'movie' ? `&primary_release_year=${y}` : `&first_air_date_year=${y}`;
             
-            // Sıralama parametresi dinamik olarak ekleniyor
-            currentApiUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
-            currentPage = 1;
+            // Sıralama parametresi ve minimum IMDb puanı dinamik olarak ekleniyor
+            const baseUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
             isFetching = true;
 
             try {
-                const res = await fetch(`${currentApiUrl}&page=1`);
+                let targetPage = 1;
+                
+                if (isNewSearch) {
+                    // İlk istekte filtrelere uyan toplam sayfa sayısını buluyoruz
+                    const initRes = await fetch(`${baseUrl}&page=1`);
+                    const initData = await initRes.json();
+                    
+                    if(!initData.results || initData.results.length === 0) {
+                        document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
+                        isFetching = false;
+                        return;
+                    }
+                    
+                    // Farklı içerik çıkması için ilk 10 sayfa arasından rastgele bir sayfa seçiyoruz
+                    const maxPage = Math.min(initData.total_pages, 10);
+                    targetPage = Math.floor(Math.random() * maxPage) + 1;
+                }
+
+                const res = await fetch(`${baseUrl}&page=${targetPage}`);
                 const data = await res.json();
                 isFetching = false;
                 
                 if(!data.results || data.results.length === 0) {
-                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamad. ❌</h2>";
+                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
                     return;
                 }
                 
-                // Gelen sonuçlardan sadece ilk 12 tanesini alıyoruz (Sayfa simetrisi için)
-                const mappedData = data.results.slice(0, 12).map(item => ({...item, media_type: mediaType}));
+                // Gelen sonuçları karıştırıp (shuffle) 12 tanesini alıyoruz
+                const shuffledResults = data.results.sort(() => 0.5 - Math.random());
+                const mappedData = shuffledResults.slice(0, 12).map(item => ({...item, media_type: mediaType}));
                 
-                // Sonsuz kaydırmayı (infinite scroll) devre dışı bırakıyoruz
+                // Sonsuz kaydırmayı devre dışı bırakıyoruz
                 currentApiUrl = ""; 
                 
                 renderMoviesToDOM(mappedData, "Keşif Listesi 🍿");
