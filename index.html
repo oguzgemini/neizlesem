@@ -56,9 +56,20 @@
         .btn-list { background: var(--card-bg); color: var(--text-main); border: 1px solid rgba(150,150,150,0.2); }
         .btn-trend { background: #e74c3c; color: white; }
         .btn-auth { background: var(--text-main); color: var(--bg-dark); }
-        .btn-theme { background: transparent; color: var(--primary-color); font-size: 20px; padding: 5px 10px; }
+        .btn-theme { background: transparent; color: var(--primary-color); font-size: 20px; padding: 5px 10px; position: relative; }
         .btn:active { transform: scale(0.95); }
         .btn:hover { transform: translateY(-3px); }
+
+        /* Bildirim Çanı Animasyonu */
+        @keyframes ring {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .bell-ringing i { animation: ring 0.5s ease-in-out infinite; color: var(--site-rating-color); }
+        #notif-badge { display: none; position: absolute; top: 2px; right: 2px; background: #e74c3c; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-dark); }
 
         /* Arama & Filtre */
         .search-container { background: var(--card-bg); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; width: 100%; max-width: 800px; margin-bottom: 40px; border: 1px solid rgba(150,150,150,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
@@ -132,7 +143,7 @@
         .season-title { margin: 0 0 5px 0; font-size: 15px; font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; padding-right: 10px; }
         .season-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 10px;}
 
-        /* YENİ: Sezon Tamamlandı Stilleri */
+        /* Sezon Tamamlandı Stilleri */
         .season-wrapper.season-completed { border-color: #27ae60; background: rgba(39, 174, 96, 0.1); }
         body.light-theme .season-wrapper.season-completed { background: rgba(39, 174, 96, 0.15); border-color: #27ae60; }
         .season-completed-icon { display: none; color: #27ae60; font-size: 16px; margin-left: 8px; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -215,6 +226,17 @@
     <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); window.playClickSound();" title="Yukarı Çık"><i class="fa-solid fa-arrow-up"></i></button>
     <div id="toast-container" class="toast-container"></div>
 
+    <!-- Bildirim Modalı YENİ -->
+    <div id="notificationModal" class="modal-overlay" style="z-index: 1006;">
+        <div class="modal-container" style="max-width: 450px; padding: 20px;">
+            <span class="modal-close" onclick="window.closeModal('notificationModal'); window.playClickSound();">&times;</span>
+            <h3 style="color:var(--primary-color); margin-top:0; border-bottom:1px solid rgba(150,150,150,0.2); padding-bottom:10px;"><i class="fa-solid fa-bell"></i> Bildirimler</h3>
+            <div id="notificationList" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; margin-top:15px;">
+                <!-- Bildirimler buraya gelecek -->
+            </div>
+        </div>
+    </div>
+
     <!-- Film Detay Modalı -->
     <div id="movieModal" class="modal-overlay">
         <div class="modal-container">
@@ -252,6 +274,13 @@
         <a href="#" class="logo" onclick="location.reload(); window.playClickSound();">🎬 Ne İzlesem?</a>
         <div class="user-nav">
             <span id="user-welcome" style="color:var(--primary-color); font-size:13px; font-weight:bold;"></span>
+            
+            <!-- Bildirim Butonu YENİ -->
+            <button id="notif-btn" class="btn-theme" onclick="window.openNotificationModal(); window.playClickSound();" title="Bildirimler">
+                <i class="fa-regular fa-bell"></i>
+                <span id="notif-badge"></span>
+            </button>
+
             <button class="btn-theme" onclick="window.toggleTheme(); window.playClickSound();" title="Temayı Değiştir"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
             <button class="btn btn-trend" onclick="window.getTrending()"><i class="fa-solid fa-fire"></i> Trendler</button>
             <button class="btn btn-dice" onclick="window.getRandomMovie()"><i class="fa-solid fa-dice"></i> Rastgele</button>
@@ -336,6 +365,9 @@
         let currentApiUrl = "";
         let currentPage = 1;
         let isFetching = false;
+        
+        // --- YENİ: BİLDİRİM SİSTEMİ DEĞİŞKENLERİ ---
+        window.notifications = [];
 
         // --- YENİ: PREMIUM SES EFEKTLERİ (Web Audio API) ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -409,14 +441,126 @@
                 authBtn.innerHTML = `<i class="fa-solid fa-power-off"></i>`;
                 authBtn.onclick = () => { window.playClickSound(); signOut(auth); showToast("Çıkış yapıldı", "success"); };
                 await fetchUserFolders();
+                await window.checkNotifications(); // YENİ: Kullanıcı giriş yapınca bildirimleri kontrol et
             } else {
                 welcome.innerText = "";
                 authBtn.innerHTML = `Giriş Yap`;
                 authBtn.onclick = () => { window.playClickSound(); window.login(); };
+                document.getElementById('notif-badge').style.display = 'none';
+                document.getElementById('notif-btn').classList.remove('bell-ringing');
             }
         });
 
         window.login = async () => { try { await signInWithPopup(auth, provider); window.playSuccessSound(); showToast("Başarıyla giriş yapıldı!"); } catch (e) { showToast("Giriş iptal edildi", "error"); } };
+
+        // --- YENİ: BİLDİRİM KONTROL SİSTEMİ ---
+        window.checkNotifications = async () => {
+            if (!currentUser) return;
+            try {
+                // Kullanıcının kütüphanesini çek
+                const snap = await getDocs(collection(db, "users", currentUser.uid, "watchlist"));
+                const list = [];
+                snap.forEach(d => list.push(d.data()));
+                
+                const today = new Date();
+                const twoWeeksAgo = new Date();
+                twoWeeksAgo.setDate(today.getDate() - 14);
+
+                let newNotifs = [];
+
+                // Son eklenen 20 içeriği kontrol et (API'yi yormamak için limit koyuyoruz)
+                const checkPromises = list.slice(0, 20).map(async (item) => {
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/${item.media_type}/${item.id}?api_key=${API_KEY}&language=tr-TR`);
+                        const data = await res.json();
+                        
+                        if (item.media_type === 'tv' && data.last_episode_to_air) {
+                            const airDate = new Date(data.last_episode_to_air.air_date);
+                            // Dizi bölümü son 14 gün içerisinde yayınlandıysa bildirim oluştur
+                            if (airDate >= twoWeeksAgo && airDate <= today) {
+                                newNotifs.push({
+                                    id: item.id,
+                                    media_type: 'tv',
+                                    title: data.name,
+                                    message: `Yeni bölüm geldi! ${data.last_episode_to_air.season_number}. Sezon ${data.last_episode_to_air.episode_number}. Bölüm yayınlandı.`,
+                                    date: data.last_episode_to_air.air_date,
+                                    poster: data.poster_path
+                                });
+                            }
+                        } else if (item.media_type === 'movie' && data.release_date) {
+                            const releaseDate = new Date(data.release_date);
+                            // Film son 14 gün içinde vizyona girdiyse bildirim oluştur
+                            if (releaseDate >= twoWeeksAgo && releaseDate <= today) {
+                                newNotifs.push({
+                                    id: item.id,
+                                    media_type: 'movie',
+                                    title: data.title,
+                                    message: `Beklediğin film artık vizyonda! Hemen detaylarına göz at.`,
+                                    date: data.release_date,
+                                    poster: data.poster_path
+                                });
+                            }
+                        }
+                    } catch(e) {}
+                });
+
+                await Promise.all(checkPromises);
+                
+                // Daha önce okunmuş bildirimleri localStorage'dan filtrele
+                const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+                window.notifications = newNotifs.filter(n => !readNotifs.includes(n.id + n.date));
+
+                // Okunmamış yeni bildirim varsa UI'ı güncelle
+                if (window.notifications.length > 0) {
+                    document.getElementById('notif-badge').style.display = 'block';
+                    document.getElementById('notif-btn').classList.add('bell-ringing');
+                    // Kullanıcıyı uyarmak için ufak bir ses çalabiliriz
+                    setTimeout(() => window.playSuccessSound(), 1000);
+                }
+
+            } catch (e) { console.error("Bildirim kontrol hatası", e); }
+        };
+
+        window.openNotificationModal = () => {
+            document.getElementById('notif-badge').style.display = 'none';
+            document.getElementById('notif-btn').classList.remove('bell-ringing');
+            
+            const listDiv = document.getElementById('notificationList');
+            
+            if (window.notifications.length === 0) {
+                listDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:14px; padding:20px;">Şu an için yeni bir bildirim yok.</p>';
+            } else {
+                listDiv.innerHTML = window.notifications.map(n => `
+                    <div style="display:flex; gap:15px; padding:10px; background:rgba(255,255,255,0.05); border-radius:10px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); transition:0.3s;" 
+                         onclick="window.readNotification('${n.id}', '${n.date}', '${n.media_type}');"
+                         onmouseover="this.style.borderColor='var(--primary-color)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        <img src="https://image.tmdb.org/t/p/w92${n.poster}" style="width:50px; height:75px; border-radius:5px; object-fit:cover;">
+                        <div style="display:flex; flex-direction:column; justify-content:center;">
+                            <h4 style="margin:0 0 5px 0; font-size:14px; color:var(--text-main);">${n.title}</h4>
+                            <p style="margin:0; font-size:12px; color:var(--text-muted);">${n.message}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('notificationModal').style.display = 'flex';
+        };
+
+        window.readNotification = (id, date, mediaType) => {
+            window.playClickSound();
+            
+            // Tıklanan bildirimi okundu olarak kaydet
+            const readNotifs = JSON.parse(localStorage.getItem('read_notifs') || '[]');
+            readNotifs.push(id + date);
+            localStorage.setItem('read_notifs', JSON.stringify(readNotifs));
+            
+            // Hafızadaki listeden çıkar
+            window.notifications = window.notifications.filter(n => (n.id + n.date) !== (id + date));
+            
+            // Bildirim penceresini kapat ve filmin/dizinin detaylarını aç
+            window.closeModal('notificationModal');
+            window.openModal(id, mediaType);
+        };
+        // --- BİLDİRİM SİSTEMİ BİTİŞ ---
 
         // Geçiş Animasyonu Tetikleyici
         function triggerPageTransition() {
@@ -820,7 +964,6 @@
                 progressFill.style.width = `${percentage}%`;
             }
             
-            // YENİ: Tüm sezon izlendi kontrolü
             const seasonWrapper = document.getElementById(`season-wrapper-${tvId}-${seasonNumber}`);
             if (seasonWrapper) {
                 if (totalEpisodes > 0 && watchedCount === totalEpisodes) {
@@ -831,19 +974,15 @@
             }
         };
 
-        // YENİ: Tüm sezonu izlendi olarak işaretleme fonksiyonu
         window.markWholeSeasonWatched = async (tvId, seasonNumber, totalEpisodes) => {
-            window.playSuccessSound(); // Başarı sesi
+            window.playSuccessSound(); 
             
-            // Tüm bölümleri local storage'a izlendi olarak kaydet
             for (let i = 1; i <= totalEpisodes; i++) {
                 localStorage.setItem(`watched_${tvId}_S${seasonNumber}E${i}`, 'true');
             }
             
-            // Progress barı ve sezon wrapper'ı hemen güncelle
             window.updateSeasonProgress(tvId, seasonNumber, totalEpisodes);
             
-            // Eğer sezon açıksa (bölümler listeleniyorsa) açık olan bölümlerin de UI'ını güncelle
             const container = document.getElementById(`episodes-${tvId}-${seasonNumber}`);
             if (container && container.style.display === 'flex') {
                 const episodeItems = container.querySelectorAll('.episode-item');
@@ -912,12 +1051,12 @@
             const isCurrentlyWatched = el.classList.contains('watched');
             
             if (isCurrentlyWatched) {
-                window.playClickSound(); // Geri alırken normal ses
+                window.playClickSound(); 
                 el.classList.remove('watched');
                 if (itemDiv) itemDiv.classList.remove('watched');
                 localStorage.setItem(storageKey, 'false');
             } else {
-                window.playSuccessSound(); // İşaretlerken tatmin edici başarı sesi
+                window.playSuccessSound(); 
                 el.classList.add('watched');
                 if (itemDiv) itemDiv.classList.add('watched');
                 localStorage.setItem(storageKey, 'true');
@@ -967,7 +1106,7 @@
 
                 await addDoc(colRef, { ...itemToSave, folder: targetFolder, watched: false, addedAt: new Date() });
                 window.closeModal('folderModal');
-                window.playSuccessSound(); // Başarılı kayıt efekti
+                window.playSuccessSound(); 
                 showToast(`"${targetFolder}" klasörüne eklendi!`, "success");
             } catch(e) { showToast("Eklenemedi", "error"); }
         };
@@ -1054,7 +1193,7 @@
         };
 
         window.toggleWatched = async (movieId, status) => {
-            if(!status) window.playSuccessSound(); else window.playClickSound(); // İzlendi yaparken başarı sesi, izlenmedi yaparken normal ses
+            if(!status) window.playSuccessSound(); else window.playClickSound(); 
             const q = query(collection(db, "users", currentUser.uid, "watchlist"), where("id", "==", movieId));
             const snap = await getDocs(q);
             snap.forEach(async (d) => { await updateDoc(doc(db, "users", currentUser.uid, "watchlist", d.id), { watched: !status }); });
@@ -1120,7 +1259,7 @@
         
         window.closeModal = (modalId) => {
             document.getElementById(modalId).style.display = 'none';
-            if(modalId === 'movieModal') document.body.classList.remove('modal-open');
+            if(modalId === 'movieModal' || modalId === 'notificationModal') document.body.classList.remove('modal-open');
             if(modalId === 'movieModal') document.getElementById('modalContent').innerHTML = ""; 
         };
     </script>
