@@ -315,7 +315,7 @@
             <div class="input-group">
                 <input type="number" id="year" placeholder="Yıl" value="2024">
             </div>
-            <!-- YENİ: Ülke Filtresi -->
+            <!-- Ülke Filtresi -->
             <div class="input-group">
                 <select id="country" onchange="window.playClickSound();">
                     <option value="">🌍 Tüm Ülkeler</option>
@@ -673,7 +673,7 @@
         function renderSkeletons() {
             triggerPageTransition();
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = `<h2 class="section-title">Yükleniyor...</h2>` + Array(8).fill(`
+            resultsDiv.innerHTML = `<h2 class="section-title">Yükleniyor...</h2>` + Array(20).fill(`
                 <div class="movie-card skeleton"><div class="movie-poster-container"></div><div class="movie-content"><div class="skeleton-text"></div><div class="skeleton-text full"></div></div></div>
             `).join('');
         }
@@ -683,14 +683,19 @@
         }, { rootMargin: '100px' });
 
         async function loadMoreMovies() {
-            isFetching = true; currentPage++;
+            if (!currentApiUrl || isFetching) return;
+            isFetching = true; 
+            currentPage++;
             try {
                 const res = await fetch(`${currentApiUrl}&page=${currentPage}`);
                 const data = await res.json();
                 if(data.results && data.results.length > 0) {
-                    const mapped = data.results.map(i => ({...i, media_type: i.media_type || document.getElementById('contentType').value || 'movie'}));
+                    const mType = document.getElementById('contentType').value || 'movie';
+                    const mapped = data.results.map(i => ({...i, media_type: i.media_type || mType}));
                     appendMoviesToDOM(mapped);
-                } else currentApiUrl = "";
+                } else {
+                    currentApiUrl = "";
+                }
             } catch (e) {}
             isFetching = false;
         }
@@ -713,47 +718,41 @@
             const sortBy = document.getElementById('sortBy').value;
             
             const providerId = document.getElementById('platformProvider').value; 
-            const countryId = document.getElementById('country').value; // YENİ: Ülke verisi çekildi
+            const countryId = document.getElementById('country').value;
             
             const genreQuery = g ? `&with_genres=${g}` : '';
             const yearQuery = mediaType === 'movie' ? `&primary_release_year=${y}` : `&first_air_date_year=${y}`;
             const providerQuery = providerId ? `&with_watch_providers=${providerId}&watch_region=TR` : '';
-            const countryQuery = countryId ? `&with_origin_country=${countryId}` : ''; // YENİ: Ülke parametresi oluşturuldu
+            const countryQuery = countryId ? `&with_origin_country=${countryId}` : '';
             
             const baseUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}${providerQuery}${countryQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
-            isFetching = true;
-
-            try {
-                let targetPage = 1;
-                if (isNewSearch) {
+            
+            if (isNewSearch) {
+                isFetching = true;
+                try {
                     const initRes = await fetch(`${baseUrl}&page=1`);
                     const initData = await initRes.json();
                     if(!initData.results || initData.results.length === 0) {
                         document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
                         isFetching = false; return;
                     }
-                    const maxPage = Math.min(initData.total_pages, 10);
-                    targetPage = Math.floor(Math.random() * maxPage) + 1;
-                }
-
-                const res = await fetch(`${baseUrl}&page=${targetPage}`);
-                const data = await res.json();
-                isFetching = false;
-                
-                if(!data.results || data.results.length === 0) {
-                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Sonuç bulunamadı. ❌</h2>";
-                    return;
-                }
-                
-                const shuffledResults = data.results.sort(() => 0.5 - Math.random());
-                const mappedData = shuffledResults.slice(0, 12).map(item => ({...item, media_type: mediaType}));
-                currentApiUrl = ""; 
-                
-                const platformName = providerId ? document.getElementById('platformProvider').options[document.getElementById('platformProvider').selectedIndex].text : '';
-                const titleText = platformName ? `${platformName} Keşifleri 🍿` : `Keşif Listesi 🍿`;
-                
-                window.renderMoviesToDOM(mappedData, titleText);
-            } catch (err) { window.showToast("Bağlantı hatası", "error"); isFetching = false; }
+                    
+                    const maxPage = Math.min(initData.total_pages, 500); 
+                    currentPage = Math.floor(Math.random() * Math.min(maxPage, 10)) + 1; 
+                    currentApiUrl = baseUrl; 
+                    
+                    const res = await fetch(`${baseUrl}&page=${currentPage}`);
+                    const data = await res.json();
+                    
+                    const mappedData = data.results.map(item => ({...item, media_type: mediaType}));
+                    
+                    const platformName = providerId ? document.getElementById('platformProvider').options[document.getElementById('platformProvider').selectedIndex].text : '';
+                    const titleText = platformName ? `${platformName} Keşifleri 🍿` : `Keşif Listesi 🍿`;
+                    
+                    window.renderMoviesToDOM(mappedData, titleText);
+                    isFetching = false;
+                } catch (err) { window.showToast("Bağlantı hatası", "error"); isFetching = false; }
+            }
         };
 
         window.getTrending = async () => {
@@ -780,12 +779,23 @@
         window.searchByName = async (queryParam) => {
             const q = queryParam || document.getElementById('searchInput').value;
             if(!q) return;
-            renderSkeletons(); currentApiUrl = ""; 
-            const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${q}&language=tr-TR`);
-            const data = await res.json();
-            const filtered = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
-            if(filtered.length === 0) document.getElementById('results').innerHTML = "<h2 class='section-title'>Kayıt bulunamadı.</h2>";
-            else window.renderMoviesToDOM(filtered.slice(0, 16), `"${q}" Sonuçları`);
+            renderSkeletons(); 
+            currentApiUrl = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${q}&language=tr-TR`;
+            currentPage = 1;
+            isFetching = true;
+            
+            try {
+                const res = await fetch(`${currentApiUrl}&page=1`);
+                const data = await res.json();
+                const filtered = data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
+                
+                if(filtered.length === 0) {
+                    document.getElementById('results').innerHTML = "<h2 class='section-title'>Kayıt bulunamadı.</h2>";
+                } else {
+                    window.renderMoviesToDOM(filtered, `"${q}" Sonuçları`);
+                }
+            } catch(e) {}
+            isFetching = false;
         };
 
         window.renderMoviesToDOM = async (movies, title, isLibrary = false, collectionId = null) => {
@@ -797,7 +807,6 @@
             
             if(movies.length > 0 && movies[0].backdrop_path && !isLibrary) document.getElementById('dynamic-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${movies[0].backdrop_path})`;
             appendMoviesToDOM(movies, isLibrary, collectionId);
-            const trigger = document.createElement('div'); trigger.id = 'load-more-trigger'; resultsDiv.appendChild(trigger); observer.observe(trigger);
         };
 
         async function appendMoviesToDOM(movies, isLibrary = false, collectionId = null) {
@@ -826,7 +835,6 @@
                 const releaseYear = releaseDateStr.split('-')[0];
                 const yearBadge = releaseYear ? `<div class="year-badge">📅 ${releaseYear}</div>` : '';
 
-                // TMDB API discover/movie isteklerinde origin_country boş olabiliyor, bu yüzden original_language'den akıllıca türetiyoruz.
                 let cCode = (m.origin_country && m.origin_country.length > 0) ? m.origin_country[0] : m.original_language;
                 const originCountry = getCountryName(cCode);
                 
@@ -900,7 +908,6 @@
                 const releaseYear = releaseDateStr.split('-')[0] || '?-';
                 const runtime = movie.runtime ? `${movie.runtime} dk` : (movie.episode_run_time && movie.episode_run_time.length > 0 ? `${movie.episode_run_time[0]} dk/bölüm` : '?');
 
-                // Ülke bilgisini modalda detaylı gösteriyoruz
                 const prodCountries = (movie.production_countries && movie.production_countries.length > 0) 
                     ? movie.production_countries.map(c => getCountryName(c.iso_3166_1)).join(', ') 
                     : getCountryName(movie.origin_country && movie.origin_country.length > 0 ? movie.origin_country[0] : movie.original_language);
