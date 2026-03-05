@@ -315,7 +315,23 @@
             <div class="input-group">
                 <input type="number" id="year" placeholder="Yıl" value="2024">
             </div>
-            <!-- YENİ: Platform Filtresi -->
+            <!-- YENİ: Ülke Filtresi -->
+            <div class="input-group">
+                <select id="country" onchange="window.playClickSound();">
+                    <option value="">🌍 Tüm Ülkeler</option>
+                    <option value="TR">🇹🇷 Türkiye</option>
+                    <option value="US">🇺🇸 ABD</option>
+                    <option value="KR">🇰🇷 Güney Kore</option>
+                    <option value="GB">🇬🇧 İngiltere</option>
+                    <option value="JP">🇯🇵 Japonya</option>
+                    <option value="FR">🇫🇷 Fransa</option>
+                    <option value="ES">🇪🇸 İspanya</option>
+                    <option value="DE">🇩🇪 Almanya</option>
+                    <option value="IT">🇮🇹 İtalya</option>
+                    <option value="IN">🇮🇳 Hindistan</option>
+                </select>
+            </div>
+            <!-- Platform Filtresi -->
             <div class="input-group">
                 <select id="platformProvider" onchange="window.playClickSound();">
                     <option value="">📺 Tüm Platformlar</option>
@@ -343,7 +359,6 @@
         <button class="btn bg-blue" style="width:100%; justify-content:center; margin-top:25px; padding:15px; border-radius:18px;" onclick="window.getMovies(true)">FİLM / DİZİ KEŞFET</button>
     </div>
 
-    <!-- Sonuçların animasyonla gelmesi için sarmalayıcı -->
     <div id="results" class="fade-in-up"></div>
 
     <script type="module">
@@ -422,8 +437,10 @@
         initTheme();
 
         const getCountryName = (code) => {
-            const countries = { 'US': 'ABD', 'GB': 'İngiltere', 'TR': 'Türkiye', 'KR': 'G. Kore', 'JP': 'Japonya', 'FR': 'Fransa', 'ES': 'İspanya', 'DE': 'Almanya', 'IT': 'İtalya', 'IN': 'Hindistan', 'CA': 'Kanada', 'AU': 'Avustralya' };
-            return countries[code] || code;
+            if(!code) return 'Bilinmiyor';
+            const c = code.toUpperCase();
+            const countries = { 'US': 'ABD', 'EN': 'ABD', 'GB': 'İngiltere', 'TR': 'Türkiye', 'KR': 'G. Kore', 'KO': 'G. Kore', 'JP': 'Japonya', 'JA': 'Japonya', 'FR': 'Fransa', 'ES': 'İspanya', 'DE': 'Almanya', 'IT': 'İtalya', 'IN': 'Hindistan', 'HI': 'Hindistan', 'CA': 'Kanada', 'AU': 'Avustralya', 'RU': 'Rusya', 'CN': 'Çin', 'ZH': 'Çin' };
+            return countries[c] || c;
         };
 
         window.addEventListener('scroll', () => {
@@ -462,7 +479,6 @@
 
         window.login = async () => { try { await signInWithPopup(auth, provider); window.playSuccessSound(); window.showToast("Başarıyla giriş yapıldı!"); } catch (e) { window.showToast("Giriş iptal edildi", "error"); } };
 
-        // --- BİLDİRİM KONTROL SİSTEMİ ---
         window.checkNotifications = async () => {
             if (!currentUser) return;
             try {
@@ -548,7 +564,6 @@
             window.openModal(id, mediaType);
         };
 
-        // --- YENİ: YORUM VE PUANLAMA SİSTEMİ KODLARI ---
         window.getSiteRatingData = async (movieId) => {
             try { 
                 const q = query(collection(db, "reviews"), where("movieId", "==", movieId));
@@ -573,13 +588,11 @@
                     totalRating += r.rating;
                 });
                 
-                // Modalın üst kısmındaki genel "Site Puanı" bilgisini gerçek verilerle güncelle
                 const siteAvgSpan = document.getElementById('modal-site-rating');
                 if(siteAvgSpan && reviews.length > 0) {
                     siteAvgSpan.innerHTML = `<i class="fa-solid fa-award" style="color:var(--site-rating-color)"></i> Site Puanı: ${(totalRating / reviews.length).toFixed(1)} (${reviews.length} Yorum)`;
                 }
 
-                // Yorumları tarihe göre (en yeni en üstte) sırala
                 reviews.sort((a,b) => {
                     const timeA = a.createdAt ? (a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt.getTime()) : 0;
                     const timeB = b.createdAt ? (b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt.getTime()) : 0;
@@ -640,8 +653,8 @@
                 });
                 window.showToast("Yorumunuz eklendi!", "success");
                 window.playSuccessSound();
-                textElem.value = ""; // Formu temizle
-                window.loadReviews(movieId); // Yorumları tekrar yükle
+                textElem.value = ""; 
+                window.loadReviews(movieId); 
             } catch (e) {
                 window.showToast("Yorum eklenemedi.", "error");
             } finally {
@@ -700,12 +713,14 @@
             const sortBy = document.getElementById('sortBy').value;
             
             const providerId = document.getElementById('platformProvider').value; 
+            const countryId = document.getElementById('country').value; // YENİ: Ülke verisi çekildi
             
             const genreQuery = g ? `&with_genres=${g}` : '';
             const yearQuery = mediaType === 'movie' ? `&primary_release_year=${y}` : `&first_air_date_year=${y}`;
             const providerQuery = providerId ? `&with_watch_providers=${providerId}&watch_region=TR` : '';
+            const countryQuery = countryId ? `&with_origin_country=${countryId}` : ''; // YENİ: Ülke parametresi oluşturuldu
             
-            const baseUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}${providerQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
+            const baseUrl = `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${API_KEY}${genreQuery}${yearQuery}${providerQuery}${countryQuery}&vote_average.gte=${r}&vote_count.gte=20&sort_by=${sortBy}&language=tr-TR`;
             isFetching = true;
 
             try {
@@ -794,8 +809,6 @@
                 if(!currentDisplayedMovies.find(cm => cm.id === m.id)) currentDisplayedMovies.push(m);
                 const poster = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750?text=Afiş+Yok';
                 
-                // Performans için ana ekranda site puanı çağrısını minimize edip varsayılan değer döndürdük.
-                // Gerçek hesaplanan puanlar detay penceresinde gösterilecek.
                 const siteData = { avg: "0.0" }; 
                 
                 const itemTitle = m.title || m.name;
@@ -813,11 +826,14 @@
                 const releaseYear = releaseDateStr.split('-')[0];
                 const yearBadge = releaseYear ? `<div class="year-badge">📅 ${releaseYear}</div>` : '';
 
-                const originalLang = m.original_language ? m.original_language.toUpperCase() : '';
-                const originCountry = (m.origin_country && m.origin_country.length > 0) ? getCountryName(m.origin_country[0]) : '';
+                // TMDB API discover/movie isteklerinde origin_country boş olabiliyor, bu yüzden original_language'den akıllıca türetiyoruz.
+                let cCode = (m.origin_country && m.origin_country.length > 0) ? m.origin_country[0] : m.original_language;
+                const originCountry = getCountryName(cCode);
+                
                 let metaTagsHTML = '';
-                if (originalLang) metaTagsHTML += `<span class="meta-tag"><i class="fa-solid fa-earth-americas"></i> ${originalLang}</span>`;
-                if (originCountry) metaTagsHTML += `<span class="meta-tag"><i class="fa-solid fa-location-dot"></i> ${originCountry}</span>`;
+                if (originCountry && originCountry !== 'Bilinmiyor') {
+                    metaTagsHTML += `<span class="meta-tag"><i class="fa-solid fa-globe"></i> ${originCountry}</span>`;
+                }
 
                 const card = document.createElement('div');
                 card.className = 'movie-card';
@@ -884,14 +900,20 @@
                 const releaseYear = releaseDateStr.split('-')[0] || '?-';
                 const runtime = movie.runtime ? `${movie.runtime} dk` : (movie.episode_run_time && movie.episode_run_time.length > 0 ? `${movie.episode_run_time[0]} dk/bölüm` : '?');
 
-                let extraMetaHTML = '';
+                // Ülke bilgisini modalda detaylı gösteriyoruz
+                const prodCountries = (movie.production_countries && movie.production_countries.length > 0) 
+                    ? movie.production_countries.map(c => getCountryName(c.iso_3166_1)).join(', ') 
+                    : getCountryName(movie.origin_country && movie.origin_country.length > 0 ? movie.origin_country[0] : movie.original_language);
+                
+                let extraMetaHTML = `<span style="display:flex; align-items:center; gap:5px;"><i class="fa-solid fa-globe"></i> ${prodCountries}</span>`;
+                
                 let seasonsHTML = ''; 
                 
                 if (mediaType === 'tv') {
                     const seasons = movie.number_of_seasons ? `${movie.number_of_seasons} Sezon` : '';
                     const episodes = movie.number_of_episodes ? `${movie.number_of_episodes} Bölüm` : '';
                     const status = movie.status === 'Ended' ? 'Final Yaptı' : (movie.status === 'Returning Series' ? 'Devam Ediyor' : 'Belirsiz');
-                    extraMetaHTML = `<span><i class="fa-solid fa-layer-group"></i> ${seasons} (${episodes})</span><span><i class="fa-solid fa-circle-info"></i> ${status}</span>`;
+                    extraMetaHTML += `<span><i class="fa-solid fa-layer-group"></i> ${seasons} (${episodes})</span><span><i class="fa-solid fa-circle-info"></i> ${status}</span>`;
                     
                     if (movie.seasons && movie.seasons.length > 0) {
                         const validSeasons = movie.seasons.filter(s => s.season_number > 0);
